@@ -5,7 +5,8 @@ import lombok.Value;
 
 import java.util.Set;
 
-public @Value class Response {
+@Value
+public class ResponseToAtm {
 
     Set<Account> cardAccounts;
 
