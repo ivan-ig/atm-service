@@ -1,11 +1,10 @@
 package com.github.ivanig.bankserver.repository;
 
-import com.github.ivanig.bankserver.domain.Account;
-
-import java.util.Set;
+import com.github.ivanig.bankserver.domain.BankClient;
 
 public interface AccountRepository {
-    Set<Account> getAllCardAccountsByClientNameAndCardNumber(String firstName,
-                                                             String lastName,
-                                                             long cardNumber);
+
+    BankClient getClientFromDataBase(String firstName,
+                                     String lastName,
+                                     long cardNumber);
 }

@@ -1,25 +1,17 @@
 package com.github.ivanig.bankserver.controllers;
 
-import com.github.ivanig.bankserver.domain.Account;
-import com.github.ivanig.bankserver.repository.AccountRepository;
-import com.github.ivanig.bankserver.utils.JSONUtils;
+import com.github.ivanig.bankserver.dto.RequestFromAtm;
+import com.github.ivanig.bankserver.dto.ResponseToAtm;
+import com.github.ivanig.bankserver.service.AccountService;
 import lombok.Data;
 import lombok.NonNull;
 
-import java.util.Set;
-
 public @Data class ServerController {
+
     @NonNull
-    private AccountRepository accountRepository;
+    private AccountService accountService;
 
-    public String getCardAccounts(String firstName, String lastName, long cardNumber) {
-
-        Set<Account> cardAccounts = accountRepository
-                .getAllCardAccountsByClientNameAndCardNumber(firstName, lastName, cardNumber);
-
-//        String response = JSONUtils.toJSON(new ResponseDTO(cardAccounts));
-        String response = JSONUtils.setToJSON(cardAccounts);
-
-        return response; // JSONString для отправки на АТМ. В Spring можно обойтись без явной сериализации
+    public ResponseToAtm getCardInfo(RequestFromAtm request) {
+        return accountService.prepareResponse(request);
     }
 }

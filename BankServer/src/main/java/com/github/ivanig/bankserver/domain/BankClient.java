@@ -7,7 +7,8 @@ import lombok.Value;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public @Value class BankClient {
+@Value
+public class BankClient {
 
     long id;
     String firstName;

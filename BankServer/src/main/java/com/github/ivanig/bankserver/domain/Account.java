@@ -1,16 +1,15 @@
 package com.github.ivanig.bankserver.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Value;
+import lombok.*;
 
 import java.math.BigDecimal;
 
-public @Value class Account {
+@Value
+public class Account {
 
-    // возможны проблемы с сериализацией из-за lombok и проблемы с вытягиванием данных из БД из-за final полей
-
-    String number;     // не уникальный для разных банков, 20 символов
-    long cardNumber;        // уникальный, 16 символов
+    String accountNumber;
+    long cardNumber;
     String currency;
     BigDecimal balance;
 
@@ -19,5 +18,4 @@ public @Value class Account {
         long cardNumberIsAbsent = -1L;
         return cardNumber != cardNumberIsAbsent;
     }
-
 }
