@@ -1,14 +1,14 @@
 package com.github.ivanig.bankserver.controllers;
 
 import com.github.ivanig.bankserver.domain.Account;
-import com.github.ivanig.bankserver.domain.BankClient;
 import com.github.ivanig.bankserver.dto.RequestFromAtm;
 import com.github.ivanig.bankserver.dto.ResponseToAtm;
 import com.github.ivanig.bankserver.repository.AccountRepository;
 import com.github.ivanig.bankserver.repository.AccountRepositoryImpl;
+import com.github.ivanig.bankserver.repository.dao.H2DatabaseAccessor;
+import com.github.ivanig.bankserver.repository.dao.H2DatabaseAccessorImpl;
 import com.github.ivanig.bankserver.service.AccountService;
 import com.github.ivanig.bankserver.service.AccountServiceImpl;
-import com.github.ivanig.bankserver.utils.JSONUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -19,37 +19,17 @@ import java.util.Set;
 
 class ServerControllerTest {
 
+    static H2DatabaseAccessor h2DatabaseAccessor;
     static AccountRepository accountRepository;
-
     static ServerController serverController;
-
     static AccountService accountService;
 
     @BeforeAll
     static void setUp() {
 
-        Set<BankClient> dataBase = new HashSet<>();
+        h2DatabaseAccessor = new H2DatabaseAccessorImpl();
 
-        Set<Account> dataBaseAccounts1 = new HashSet<>();
-        dataBaseAccounts1.add(new Account("0000",
-                4444L, "RUB", new BigDecimal("10000.00")));
-        dataBaseAccounts1.add(new Account("1111",
-                4444L, "USD", new BigDecimal("5000.00")));
-        dataBaseAccounts1.add(new Account("2222",
-                4444L, "EUR", new BigDecimal("2000.00")));
-        dataBaseAccounts1.add(new Account("3333",
-                -1L, "RUB", new BigDecimal("100000.00")));
-
-        Set<Account> dataBaseAccounts2 = new HashSet<>();
-        dataBaseAccounts2.add(new Account("4444",
-                5555L, "RUB", new BigDecimal("40000.00")));
-        dataBaseAccounts2.add(new Account("5555",
-                -1L, "USD", new BigDecimal("1000.00")));
-
-        dataBase.add(new BankClient(1, "ivan", "1", dataBaseAccounts1));
-        dataBase.add(new BankClient(2, "ivan", "2", dataBaseAccounts2));
-
-        accountRepository = new AccountRepositoryImpl(dataBase);
+        accountRepository = new AccountRepositoryImpl(h2DatabaseAccessor);
 
         accountService = new AccountServiceImpl(accountRepository);
 
@@ -57,20 +37,33 @@ class ServerControllerTest {
     }
 
     @Test
-    public void getCardInfo() {
+    public void getSingleAccountInfo() {
 
         Set<Account> accounts = new HashSet<Account>() {{
-            add(new Account("4444",5555L, "RUB", new BigDecimal("40000.00")));
+            add(new Account("88888888888888811111",1616161616162222L, "RUB", new BigDecimal("0.00")));
         }};
         ResponseToAtm expectedResponse = new ResponseToAtm(accounts);
 
-        ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("ivan", "2", 5555L));
+        ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("AFANASII", "FET", 1616161616162222L));
 
-        Assertions.assertEquals(JSONUtils.toJSON(expectedResponse), JSONUtils.toJSON(response));
+        Assertions.assertEquals(expectedResponse, response);
+    }
+
+    @Test
+    public void getMultipleAccountInfo() {
+        Set<Account> accounts = new HashSet<Account>() {{
+            add(new Account("77777777777777711111",1616161616161111L, "RUB", new BigDecimal("0.00")));
+            add(new Account("77777777777777722222",1616161616161111L, "USD", new BigDecimal("0.00")));
+            add(new Account("77777777777777733333",1616161616161111L, "EUR", new BigDecimal("0.00")));
+        }};
+        ResponseToAtm expectedResponse = new ResponseToAtm(accounts);
+
+        ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("ANDREY", "VASILIEV", 1616161616161111L));
+
+        Assertions.assertEquals(expectedResponse, response);
     }
 
     //TODO
-    // тест с несколькими счетами в ответе
     // тест аккаунта без карт-счета (с пустым ответом)
     // тест с неправильными входными данными
     // тесты внутренней логики классов доменной модели

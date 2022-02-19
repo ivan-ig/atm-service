@@ -22,8 +22,4 @@ public class BankClient {
                 filter(Account::isCardAccount)
                 .collect(Collectors.toSet());
     }
-
-    public boolean isClientHasCard(long cardNumber) {
-        return accounts.stream().anyMatch(e -> e.getCardNumber() == cardNumber);
-    }
 }

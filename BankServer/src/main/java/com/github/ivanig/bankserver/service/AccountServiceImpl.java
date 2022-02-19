@@ -17,8 +17,8 @@ public class AccountServiceImpl implements AccountService {
     private AccountRepository accountRepository;
 
     @Override
-    public ResponseToAtm prepareResponse(RequestFromAtm request) {
-        return new ResponseToAtm(getCardAccounts(request));         // ???
+    public ResponseToAtm getResponse(RequestFromAtm request) {
+        return new ResponseToAtm(getCardAccounts(request));
     }
 
     @Override
@@ -27,7 +27,7 @@ public class AccountServiceImpl implements AccountService {
         String lastName = request.getLastName();
         long cardNumber = request.getCardNumber();
 
-        BankClient client = accountRepository.getClientFromDataBase(firstName, lastName, cardNumber);
+        BankClient client = accountRepository.getClientFromRepository(firstName, lastName, cardNumber);
 
         return client.getCardAccountsOnly();
     }

@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface AccountService {
 
-    ResponseToAtm prepareResponse(RequestFromAtm requestFromAtm);
+    ResponseToAtm getResponse(RequestFromAtm requestFromAtm);
 
     Set<Account> getCardAccounts(RequestFromAtm requestFromAtm);
 

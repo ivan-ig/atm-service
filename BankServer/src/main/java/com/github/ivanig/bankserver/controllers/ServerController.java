@@ -12,6 +12,6 @@ public @Data class ServerController {
     private AccountService accountService;
 
     public ResponseToAtm getCardInfo(RequestFromAtm request) {
-        return accountService.prepareResponse(request);
+        return accountService.getResponse(request);
     }
 }

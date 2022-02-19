@@ -1,7 +1,7 @@
 package com.github.ivanig.bankserver.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.Value;
 
 import java.math.BigDecimal;
 
@@ -11,7 +11,7 @@ public class Account {
     String accountNumber;
     long cardNumber;
     String currency;
-    BigDecimal balance;
+    BigDecimal amount;
 
     @JsonIgnore
     public boolean isCardAccount() {

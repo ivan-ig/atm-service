@@ -1,29 +1,22 @@
 package com.github.ivanig.bankserver.repository;
 
 import com.github.ivanig.bankserver.domain.BankClient;
+import com.github.ivanig.bankserver.repository.dao.H2DatabaseAccessor;
 import lombok.Data;
 import lombok.NonNull;
 
 import java.util.HashSet;
-import java.util.Set;
 
 @Data
 public class AccountRepositoryImpl implements AccountRepository {
 
-    // Имитация базы данных
-    private @NonNull Set<BankClient> dataBase;
+    @NonNull
+    private H2DatabaseAccessor h2DatabaseAccessor;
 
     @Override
-    public BankClient getClientFromDataBase(String firstName,
-                                            String lastName,
-                                            long cardNumber) {
-        // Имитация работы с базой данных
-        BankClient client = dataBase.stream()
-                .filter(e -> firstName.equals(e.getFirstName())
-                        && lastName.equals(e.getLastName()))
-                .filter(e -> e.isClientHasCard(cardNumber))
-                .findFirst().orElse(new BankClient(-1, "N/A", "N/A", new HashSet<>()));
+    public BankClient getClientFromRepository(String firstName, String lastName, long cardNumber) {
 
-        return client;
+        return h2DatabaseAccessor.getClientFromH2DB(firstName, lastName, cardNumber)
+                .orElse(new BankClient(-1L, "N/A", "N/A", new HashSet<>()));
     }
 }
