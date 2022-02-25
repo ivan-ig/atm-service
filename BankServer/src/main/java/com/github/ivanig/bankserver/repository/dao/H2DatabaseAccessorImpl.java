@@ -43,7 +43,7 @@ public class H2DatabaseAccessorImpl implements H2DatabaseAccessor {
 
         BankClient client = null;
 
-        try (Connection conn = dataSource.getConnection()) { // всё еще может вернуть null?
+        try (Connection conn = dataSource.getConnection()) {
             String sql = "SELECT client.id, client.first_name, client.last_name, account.account_number, " +
                     "account.card_number, account.balance, account.currency FROM client " +
                     "INNER JOIN account ON account.owner_id = client.id " +
@@ -69,21 +69,21 @@ public class H2DatabaseAccessorImpl implements H2DatabaseAccessor {
         long clientIdFromDB = resultSet.getLong("ID");
         String firstNameFromDB = resultSet.getString("FIRST_NAME");
         String lastNameFromDB = resultSet.getString("LAST_NAME");
-        String accountNumberFromDB = resultSet.getString("ACCOUNT_NUMBER");
-        long cardNumberFromDB = resultSet.getLong("CARD_NUMBER");
-        String currencyFromDB = resultSet.getString("CURRENCY");
-        BigDecimal balanceFromDB = resultSet.getBigDecimal("BALANCE");
+
         Set<Account> accountsFromDB = new HashSet<>();
-        accountsFromDB.add(new Account(accountNumberFromDB, cardNumberFromDB, currencyFromDB, balanceFromDB));
+        accountsFromDB.add(extractAccount(resultSet));
+
         while (resultSet.next()) {
-            clientIdFromDB = resultSet.getLong("ID");
-            accountNumberFromDB = resultSet.getString("ACCOUNT_NUMBER");
-            cardNumberFromDB = resultSet.getLong("CARD_NUMBER");
-            currencyFromDB = resultSet.getString("CURRENCY");
-            balanceFromDB = resultSet.getBigDecimal("BALANCE");
-            accountsFromDB.add(new Account(accountNumberFromDB, cardNumberFromDB, currencyFromDB, balanceFromDB));
+            accountsFromDB.add(extractAccount(resultSet));
         }
 
         return new BankClient(clientIdFromDB, firstNameFromDB, lastNameFromDB, accountsFromDB);
+    }
+
+    private Account extractAccount(ResultSet resultSet) throws SQLException {
+        return new Account(resultSet.getString("ACCOUNT_NUMBER"),
+                           resultSet.getLong("CARD_NUMBER"),
+                           resultSet.getString("CURRENCY"),
+                           resultSet.getBigDecimal("BALANCE"));
     }
 }

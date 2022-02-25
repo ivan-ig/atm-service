@@ -9,13 +9,15 @@ import com.github.ivanig.bankserver.repository.dao.H2DatabaseAccessor;
 import com.github.ivanig.bankserver.repository.dao.H2DatabaseAccessorImpl;
 import com.github.ivanig.bankserver.service.AccountService;
 import com.github.ivanig.bankserver.service.AccountServiceImpl;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ServerControllerTest {
 
@@ -46,7 +48,7 @@ class ServerControllerTest {
 
         ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("AFANASII", "FET", 1616161616162222L));
 
-        Assertions.assertEquals(expectedResponse, response);
+        assertEquals(expectedResponse, response);
     }
 
     @Test
@@ -60,13 +62,25 @@ class ServerControllerTest {
 
         ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("ANDREY", "VASILIEV", 1616161616161111L));
 
-        Assertions.assertEquals(expectedResponse, response);
+        assertEquals(expectedResponse, response);
     }
 
-    //TODO
-    // тест аккаунта без карт-счета (с пустым ответом)
-    // тест с неправильными входными данными
-    // тесты внутренней логики классов доменной модели
+    @Test
+    public void failedResponseDueToIncorrectRequestParam() {
+        Set<Account> accounts = new HashSet<>();
 
+        ResponseToAtm expectedResponse = new ResponseToAtm(accounts);
+
+        ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("PINEAPPLE", "FETT", 11L));
+
+        assertEquals(expectedResponse, response);
+    }
+
+    @Test
+    public void cardAccountCheck() {
+        Account account = new Account("22", -1L, "RUB", new BigDecimal("0.00"));
+
+        assertFalse(account.isCardAccount());
+    }
 
 }
