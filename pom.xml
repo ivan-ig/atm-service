@@ -11,6 +11,7 @@
     <modules>
         <module>AtmServer</module>
         <module>BankServer</module>
+        <module>common</module>
     </modules>
 
     <properties>
@@ -24,8 +25,6 @@
         <junit-jupiter.version>5.8.2</junit-jupiter.version>
         <mockito-core.version>4.2.0</mockito-core.version>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-        <h2.version>2.1.210</h2.version>
-        <c3p0.version>0.9.5.5</c3p0.version>
     </properties>
 
     <dependencies>
@@ -49,16 +48,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
-            <version>${c3p0.version}</version>
         </dependency>
     </dependencies>
 

@@ -9,23 +9,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>AtmServer</artifactId>
+    <artifactId>Common</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.github.ivanig</groupId>
-            <artifactId>Common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.ivanig</groupId>
-            <artifactId>BankServer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 </project>

@@ -2,7 +2,7 @@ package com.github.ivanig.bankserver.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.ivanig.bankserver.dto.ResponseToAtm;
+import com.github.ivanig.common.dto.ResponseToAtm;
 
 public class JSONUtils {
 

@@ -1,23 +1,20 @@
-package com.github.ivanig.bankserver.controllers;
+package com.github.ivanig.bankserver.controller;
 
-import com.github.ivanig.bankserver.domain.Account;
-import com.github.ivanig.bankserver.dto.RequestFromAtm;
-import com.github.ivanig.bankserver.dto.ResponseToAtm;
 import com.github.ivanig.bankserver.repository.AccountRepository;
 import com.github.ivanig.bankserver.repository.AccountRepositoryImpl;
 import com.github.ivanig.bankserver.repository.dao.H2DatabaseAccessor;
 import com.github.ivanig.bankserver.repository.dao.H2DatabaseAccessorImpl;
 import com.github.ivanig.bankserver.service.AccountService;
 import com.github.ivanig.bankserver.service.AccountServiceImpl;
+import com.github.ivanig.common.dto.RequestFromAtm;
+import com.github.ivanig.common.dto.ResponseToAtm;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ServerControllerTest {
 
@@ -41,46 +38,41 @@ class ServerControllerTest {
     @Test
     public void getSingleAccountInfo() {
 
-        Set<Account> accounts = new HashSet<Account>() {{
-            add(new Account("88888888888888811111",1616161616162222L, "RUB", new BigDecimal("0.00")));
-        }};
+        Map<String, String> accounts = new HashMap<>();
+        String roubles = "0.00 RUB";
+        accounts.put("88888888888888811111", roubles);
+
         ResponseToAtm expectedResponse = new ResponseToAtm(accounts);
 
-        ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("AFANASII", "FET", 1616161616162222L));
+        ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("AFANASII", "FET", 1616161616162222L, 1234));
 
         assertEquals(expectedResponse, response);
     }
 
     @Test
     public void getMultipleAccountInfo() {
-        Set<Account> accounts = new HashSet<Account>() {{
-            add(new Account("77777777777777711111",1616161616161111L, "RUB", new BigDecimal("0.00")));
-            add(new Account("77777777777777722222",1616161616161111L, "USD", new BigDecimal("0.00")));
-            add(new Account("77777777777777733333",1616161616161111L, "EUR", new BigDecimal("0.00")));
-        }};
+
+        Map<String, String> accounts = new HashMap<>();
+        String roubles = "0.00 RUB";
+        String dollars = "0.00 USD";
+        accounts.put("77777777777777711111", roubles);
+        accounts.put("77777777777777722222", dollars);
+
         ResponseToAtm expectedResponse = new ResponseToAtm(accounts);
 
-        ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("ANDREY", "VASILIEV", 1616161616161111L));
+        ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("ANDREY", "VASILIEV", 1616161616161111L, 1234));
 
         assertEquals(expectedResponse, response);
     }
 
     @Test
     public void failedResponseDueToIncorrectRequestParam() {
-        Set<Account> accounts = new HashSet<>();
+        Map<String, String> accounts = new HashMap<>();
 
         ResponseToAtm expectedResponse = new ResponseToAtm(accounts);
 
-        ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("PINEAPPLE", "FETT", 11L));
+        ResponseToAtm response = serverController.getCardInfo(new RequestFromAtm("PINEAPPLE", "FETT", 11L, 1234));
 
         assertEquals(expectedResponse, response);
     }
-
-    @Test
-    public void cardAccountCheck() {
-        Account account = new Account("22", -1L, "RUB", new BigDecimal("0.00"));
-
-        assertFalse(account.isCardAccount());
-    }
-
 }

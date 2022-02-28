@@ -1,12 +1,11 @@
 package com.github.ivanig.bankserver.repository.dao;
 
-import com.github.ivanig.bankserver.domain.Account;
-import com.github.ivanig.bankserver.domain.BankClient;
+import com.github.ivanig.bankserver.model.BankClient;
+import com.github.ivanig.bankserver.model.Account;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,19 +38,20 @@ public class H2DatabaseAccessorImpl implements H2DatabaseAccessor {
     }
 
     @Override
-    public Optional<BankClient> getClientFromH2DB(String firstName, String lastName, long cardNumber) {
+    public Optional<BankClient> getClientFromH2DB(String firstName, String lastName, long cardNumber, int PIN) {
 
         BankClient client = null;
 
         try (Connection conn = dataSource.getConnection()) {
-            String sql = "SELECT client.id, client.first_name, client.last_name, account.account_number, " +
+            String sql = "SELECT client.first_name, client.last_name, account.account_number, " +
                     "account.card_number, account.balance, account.currency FROM client " +
                     "INNER JOIN account ON account.owner_id = client.id " +
-                    "WHERE card_number = ? AND first_name = ? AND last_name = ?;";
+                    "WHERE card_number = ? AND pin_code = ? AND first_name = ? AND last_name = ?;";
             try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
                 preparedStatement.setLong(1, cardNumber);
-                preparedStatement.setString(2, firstName);
-                preparedStatement.setString(3, lastName);
+                preparedStatement.setInt(2, PIN);
+                preparedStatement.setString(3, firstName);
+                preparedStatement.setString(4, lastName);
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
                         client = extractResults(resultSet);
@@ -66,18 +66,15 @@ public class H2DatabaseAccessorImpl implements H2DatabaseAccessor {
 
     private BankClient extractResults(ResultSet resultSet) throws SQLException {
 
-        long clientIdFromDB = resultSet.getLong("ID");
         String firstNameFromDB = resultSet.getString("FIRST_NAME");
         String lastNameFromDB = resultSet.getString("LAST_NAME");
 
         Set<Account> accountsFromDB = new HashSet<>();
-        accountsFromDB.add(extractAccount(resultSet));
-
-        while (resultSet.next()) {
+        do {
             accountsFromDB.add(extractAccount(resultSet));
-        }
+        } while (resultSet.next());
 
-        return new BankClient(clientIdFromDB, firstNameFromDB, lastNameFromDB, accountsFromDB);
+        return new BankClient(firstNameFromDB, lastNameFromDB, accountsFromDB);
     }
 
     private Account extractAccount(ResultSet resultSet) throws SQLException {

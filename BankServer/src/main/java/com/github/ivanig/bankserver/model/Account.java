@@ -1,4 +1,4 @@
-package com.github.ivanig.bankserver.domain;
+package com.github.ivanig.bankserver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Value;
@@ -9,13 +9,12 @@ import java.math.BigDecimal;
 public class Account {
 
     String accountNumber;
-    long cardNumber;
+    Long cardNumber;
     String currency;
     BigDecimal amount;
 
     @JsonIgnore
     public boolean isCardAccount() {
-        long cardNumberIsAbsent = -1L;
-        return cardNumber != cardNumberIsAbsent;
+        return cardNumber != null;
     }
 }

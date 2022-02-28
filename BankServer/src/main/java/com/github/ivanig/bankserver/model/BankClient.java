@@ -1,4 +1,4 @@
-package com.github.ivanig.bankserver.domain;
+package com.github.ivanig.bankserver.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 @Value
 public class BankClient {
 
-    long id;
     String firstName;
     String lastName;
 

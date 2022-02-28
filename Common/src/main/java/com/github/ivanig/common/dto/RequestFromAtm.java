@@ -1,4 +1,4 @@
-package com.github.ivanig.bankserver.dto;
+package com.github.ivanig.common.dto;
 
 import lombok.Value;
 
@@ -8,5 +8,6 @@ public class RequestFromAtm {
     String firstName;
     String lastName;
     long cardNumber;
+    int PIN;
 
 }

@@ -1,14 +1,14 @@
 package com.github.ivanig.bankserver.service;
 
-import com.github.ivanig.bankserver.domain.Account;
-import com.github.ivanig.bankserver.dto.RequestFromAtm;
-import com.github.ivanig.bankserver.dto.ResponseToAtm;
+import com.github.ivanig.bankserver.model.Account;
+import com.github.ivanig.common.dto.RequestFromAtm;
+import com.github.ivanig.common.dto.ResponseToAtm;
 
 import java.util.Set;
 
 public interface AccountService {
 
-    ResponseToAtm getResponse(RequestFromAtm requestFromAtm);
+    ResponseToAtm prepareResponse(RequestFromAtm requestFromAtm);
 
     Set<Account> getCardAccounts(RequestFromAtm requestFromAtm);
 
