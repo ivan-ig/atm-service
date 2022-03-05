@@ -1,5 +1,6 @@
 package com.github.ivanig.bankserver.service;
 
+import com.github.ivanig.bankserver.exceptions.ClientNotFoundException;
 import com.github.ivanig.bankserver.model.Account;
 import com.github.ivanig.bankserver.model.BankClient;
 import com.github.ivanig.bankserver.repository.BankRepository;
@@ -9,12 +10,11 @@ import lombok.Data;
 import lombok.NonNull;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 @Data
-public class AccountService {
+public class BankService {
 
     @NonNull
     private BankRepository bankRepository;
@@ -32,12 +32,11 @@ public class AccountService {
     public Set<Account> getCardAccounts(RequestFromAtm request) {
 
         BankClient client = bankRepository.getClientFromRepository(request).
-                orElse(new BankClient("N/A", "N/A", new HashSet<>()));
+                orElseThrow(() -> new ClientNotFoundException("An error occurred while searching for a Client"));
 
         return client.getCardAccountsOnly();
     }
 }
 
         //TODO
-        // Exception (ClientNotFound ex.) вместо пустого клиента
         // Сделать Entity классы для отображения (маппинга) таблиц;

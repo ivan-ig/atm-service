@@ -1,17 +1,18 @@
 package com.github.ivanig.bankserver.controller;
 
-import com.github.ivanig.bankserver.service.AccountService;
+import com.github.ivanig.bankserver.service.BankService;
 import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;
 import lombok.Data;
 import lombok.NonNull;
 
-public @Data class ServerController {
+@Data
+public class BankServerController {
 
     @NonNull
-    private AccountService accountService;
+    private BankService bankService;
 
     public ResponseToAtm getCardAccountsInfo(RequestFromAtm request) {
-        return accountService.prepareResponse(request);
+        return bankService.prepareResponse(request);
     }
 }

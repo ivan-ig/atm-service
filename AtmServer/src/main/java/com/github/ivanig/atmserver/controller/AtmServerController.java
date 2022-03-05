@@ -2,16 +2,17 @@ package com.github.ivanig.atmserver.controller;
 
 import com.github.ivanig.atmserver.dto.ResponseToClient;
 import com.github.ivanig.atmserver.service.AtmService;
+import com.github.ivanig.bankserver.controller.BankServerController;
 import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;
 import lombok.Data;
 import lombok.NonNull;
 
 @Data
-public class ServerController {
+public class AtmServerController {
 
     @NonNull
-    private com.github.ivanig.bankserver.controller.ServerController bankController;
+    private BankServerController bankController;
     @NonNull
     private AtmService atmService;
 

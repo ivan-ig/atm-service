@@ -1,7 +1,8 @@
 package com.github.ivanig.bankserver.controller;
 
+import com.github.ivanig.bankserver.exceptions.ClientNotFoundException;
 import com.github.ivanig.bankserver.repository.BankRepository;
-import com.github.ivanig.bankserver.service.AccountService;
+import com.github.ivanig.bankserver.service.BankService;
 import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,21 +12,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class ServerControllerTest {
+class BankServerControllerTest {
 
     static BankRepository bankRepository;
-    static ServerController serverController;
-    static AccountService accountService;
+    static BankServerController bankServerController;
+    static BankService bankService;
 
     @BeforeAll
     static void setUp() {
 
         bankRepository = new BankRepository();
 
-        accountService = new AccountService(bankRepository);
+        bankService = new BankService(bankRepository);
 
-        serverController = new ServerController(accountService);
+        bankServerController = new BankServerController(bankService);
     }
 
     @Test
@@ -37,7 +39,8 @@ class ServerControllerTest {
 
         ResponseToAtm expectedResponse = new ResponseToAtm(accounts);
 
-        ResponseToAtm response = serverController.getCardAccountsInfo(new RequestFromAtm("AFANASII", "FET", 1616161616162222L, 1234));
+        ResponseToAtm response = bankServerController.getCardAccountsInfo(
+                new RequestFromAtm("AFANASII", "FET", 1616161616162222L, 1234));
 
         assertEquals(expectedResponse, response);
     }
@@ -53,19 +56,17 @@ class ServerControllerTest {
 
         ResponseToAtm expectedResponse = new ResponseToAtm(accounts);
 
-        ResponseToAtm response = serverController.getCardAccountsInfo(new RequestFromAtm("ANDREY", "VASILIEV", 1616161616161111L, 1234));
+        ResponseToAtm response = bankServerController.getCardAccountsInfo(
+                new RequestFromAtm("ANDREY", "VASILIEV", 1616161616161111L, 1234));
 
         assertEquals(expectedResponse, response);
     }
 
     @Test
     public void failedResponseDueToIncorrectRequestParam() {
-        Map<String, String> accounts = new HashMap<>();
 
-        ResponseToAtm expectedResponse = new ResponseToAtm(accounts);
+        RequestFromAtm incorrectRequest = new RequestFromAtm("", "FETT", 11L, 1234);
 
-        ResponseToAtm response = serverController.getCardAccountsInfo(new RequestFromAtm("PINEAPPLE", "FETT", 11L, 1234));
-
-        assertEquals(expectedResponse, response);
+        assertThrows(ClientNotFoundException.class, () -> bankServerController.getCardAccountsInfo(incorrectRequest));
     }
 }

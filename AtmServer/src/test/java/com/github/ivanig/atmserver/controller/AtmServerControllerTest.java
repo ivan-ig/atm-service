@@ -2,8 +2,9 @@ package com.github.ivanig.atmserver.controller;
 
 import com.github.ivanig.atmserver.dto.ResponseToClient;
 import com.github.ivanig.atmserver.service.AtmService;
+import com.github.ivanig.bankserver.controller.BankServerController;
 import com.github.ivanig.bankserver.repository.BankRepository;
-import com.github.ivanig.bankserver.service.AccountService;
+import com.github.ivanig.bankserver.service.BankService;
 import com.github.ivanig.common.messages.ResponseToAtm;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,18 +15,18 @@ import java.util.Map;
 
 import static org.mockito.Mockito.when;
 
-class ServerControllerTest {
+class AtmServerControllerTest {
 
-    static com.github.ivanig.bankserver.controller.ServerController bankController;
+    static BankServerController bankController;
     static AtmService atmService;
-    static ServerController atmController;
+    static AtmServerController atmController;
 
     @Test
     public void successfulGettingBalance_integrationTesting() {
         atmService = new AtmService();
-        bankController = new com.github.ivanig.bankserver.controller.ServerController(
-                new AccountService(new BankRepository()));
-        atmController = new ServerController(bankController, atmService);
+        bankController = new BankServerController(
+                new BankService(new BankRepository()));
+        atmController = new AtmServerController(bankController, atmService);
 
         String firstName = "ANDREY";
         String lastName = "VASILIEV";
@@ -50,8 +51,8 @@ class ServerControllerTest {
         ResponseToAtm response = new ResponseToAtm(accountInfo);
 
         atmService = new AtmService();
-        bankController = Mockito.mock(com.github.ivanig.bankserver.controller.ServerController.class);
-        atmController = new ServerController(bankController, atmService);
+        bankController = Mockito.mock(BankServerController.class);
+        atmController = new AtmServerController(bankController, atmService);
 
         when(bankController.getCardAccountsInfo(Mockito.any())).then(e -> response);
 
