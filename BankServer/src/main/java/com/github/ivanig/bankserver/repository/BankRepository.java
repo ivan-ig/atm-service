@@ -2,6 +2,7 @@ package com.github.ivanig.bankserver.repository;
 
 import com.github.ivanig.bankserver.model.Account;
 import com.github.ivanig.bankserver.model.BankClient;
+import com.github.ivanig.common.messages.RequestFromAtm;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import lombok.Data;
 
@@ -39,7 +40,7 @@ public class BankRepository {
         dataSource = cpds;
     }
 
-    public Optional<BankClient> getClientFromRepository(String firstName, String lastName, long cardNumber, int PIN) {
+    public Optional<BankClient> getClientFromRepository(RequestFromAtm request) {
 
         BankClient client = null;
 
@@ -49,10 +50,10 @@ public class BankRepository {
                     "INNER JOIN account ON account.owner_id = client.id " +
                     "WHERE card_number = ? AND pin_code = ? AND first_name = ? AND last_name = ?;";
             try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
-                preparedStatement.setLong(1, cardNumber);
-                preparedStatement.setInt(2, PIN);
-                preparedStatement.setString(3, firstName);
-                preparedStatement.setString(4, lastName);
+                preparedStatement.setLong(1, request.getCardNumber());
+                preparedStatement.setInt(2, request.getPIN());
+                preparedStatement.setString(3, request.getFirstName());
+                preparedStatement.setString(4, request.getLastName());
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
                         client = extractResults(resultSet);

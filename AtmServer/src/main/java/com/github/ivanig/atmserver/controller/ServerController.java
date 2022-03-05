@@ -2,8 +2,8 @@ package com.github.ivanig.atmserver.controller;
 
 import com.github.ivanig.atmserver.dto.ResponseToClient;
 import com.github.ivanig.atmserver.service.AtmService;
-import com.github.ivanig.common.dto.RequestFromAtm;
-import com.github.ivanig.common.dto.ResponseToAtm;
+import com.github.ivanig.common.messages.RequestFromAtm;
+import com.github.ivanig.common.messages.ResponseToAtm;
 import lombok.Data;
 import lombok.NonNull;
 

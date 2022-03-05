@@ -3,8 +3,8 @@ package com.github.ivanig.bankserver.service;
 import com.github.ivanig.bankserver.model.Account;
 import com.github.ivanig.bankserver.model.BankClient;
 import com.github.ivanig.bankserver.repository.BankRepository;
-import com.github.ivanig.common.dto.RequestFromAtm;
-import com.github.ivanig.common.dto.ResponseToAtm;
+import com.github.ivanig.common.messages.RequestFromAtm;
+import com.github.ivanig.common.messages.ResponseToAtm;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,11 +27,12 @@ class AccountServiceTest {
             add(new Account("22", 16L, "USD", new BigDecimal("0.00")));
         }};
 
-        when(bankRepository.getClientFromRepository(anyString(), anyString(), anyLong(), anyInt())).then(e ->
+        RequestFromAtm request = new RequestFromAtm("1", "2", 16L, 1234);
+
+        when(bankRepository.getClientFromRepository(request)).then(e ->
                 Optional.of(new BankClient(anyString(), anyString(), accounts)));
 
         AccountService accountService = new AccountService(bankRepository);
-        RequestFromAtm request = new RequestFromAtm("1", "2", 16L, 1234);
 
         Map<String, String> map = new HashMap<String, String>() {{
             put("21", "0.00 RUB");

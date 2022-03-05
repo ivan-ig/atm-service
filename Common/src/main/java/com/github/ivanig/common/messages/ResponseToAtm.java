@@ -1,4 +1,4 @@
-package com.github.ivanig.common.dto;
+package com.github.ivanig.common.messages;
 
 import lombok.Value;
 

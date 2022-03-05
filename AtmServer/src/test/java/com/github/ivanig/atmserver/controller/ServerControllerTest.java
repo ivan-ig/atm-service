@@ -4,7 +4,7 @@ import com.github.ivanig.atmserver.dto.ResponseToClient;
 import com.github.ivanig.atmserver.service.AtmService;
 import com.github.ivanig.bankserver.repository.BankRepository;
 import com.github.ivanig.bankserver.service.AccountService;
-import com.github.ivanig.common.dto.ResponseToAtm;
+import com.github.ivanig.common.messages.ResponseToAtm;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

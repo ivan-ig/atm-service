@@ -3,8 +3,8 @@ package com.github.ivanig.bankserver.service;
 import com.github.ivanig.bankserver.model.Account;
 import com.github.ivanig.bankserver.model.BankClient;
 import com.github.ivanig.bankserver.repository.BankRepository;
-import com.github.ivanig.common.dto.RequestFromAtm;
-import com.github.ivanig.common.dto.ResponseToAtm;
+import com.github.ivanig.common.messages.RequestFromAtm;
+import com.github.ivanig.common.messages.ResponseToAtm;
 import lombok.Data;
 import lombok.NonNull;
 
@@ -30,18 +30,14 @@ public class AccountService {
     }
 
     public Set<Account> getCardAccounts(RequestFromAtm request) {
-        String firstName = request.getFirstName();
-        String lastName = request.getLastName();
-        long cardNumber = request.getCardNumber();
-        int PIN = request.getPIN();
 
-        BankClient client = bankRepository.getClientFromRepository(firstName, lastName, cardNumber, PIN).
+        BankClient client = bankRepository.getClientFromRepository(request).
                 orElse(new BankClient("N/A", "N/A", new HashSet<>()));
-
-        //TODO
-        // Exception (ClientNotFound ex.) вместо пустого клиента
-        // Сделать Entity классы для отображения (маппинга) таблиц;
 
         return client.getCardAccountsOnly();
     }
 }
+
+        //TODO
+        // Exception (ClientNotFound ex.) вместо пустого клиента
+        // Сделать Entity классы для отображения (маппинга) таблиц;
