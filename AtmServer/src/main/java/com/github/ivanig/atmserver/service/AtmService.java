@@ -1,11 +1,10 @@
-package com.github.ivanig.atmserver;
+package com.github.ivanig.atmserver.service;
 
 import com.github.ivanig.atmserver.dto.ResponseToClient;
 import com.github.ivanig.common.dto.ResponseToAtm;
 
-public class AtmServiceImpl implements AtmService {
+public class AtmService {
 
-    @Override
     public ResponseToClient prepareResponseToClient(ResponseToAtm responseFromBank) {
 
         return new ResponseToClient(responseFromBank.getCardAccounts());

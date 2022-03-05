@@ -1,7 +1,5 @@
 package com.github.ivanig.atmserver.service;
 
-import com.github.ivanig.atmserver.AtmService;
-import com.github.ivanig.atmserver.AtmServiceImpl;
 import com.github.ivanig.atmserver.dto.ResponseToClient;
 import com.github.ivanig.common.dto.ResponseToAtm;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,7 +16,7 @@ class AtmServiceTest {
 
     @BeforeAll
     static void setUp() {
-        atmService = new AtmServiceImpl();
+        atmService = new AtmService();
     }
 
     @Test

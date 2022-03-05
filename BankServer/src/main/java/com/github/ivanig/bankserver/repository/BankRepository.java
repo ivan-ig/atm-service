@@ -1,8 +1,9 @@
-package com.github.ivanig.bankserver.repository.dao;
+package com.github.ivanig.bankserver.repository;
 
-import com.github.ivanig.bankserver.model.BankClient;
 import com.github.ivanig.bankserver.model.Account;
+import com.github.ivanig.bankserver.model.BankClient;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import lombok.Data;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
@@ -14,11 +15,12 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public class H2DatabaseAccessorImpl implements H2DatabaseAccessor {
+@Data
+public class BankRepository {
 
     private final DataSource dataSource;
 
-    public H2DatabaseAccessorImpl() {
+    public BankRepository() {
         final String JDBC_DRIVER = "org.h2.Driver";
         final String DB_URL = "jdbc:h2:~/bank_db";
         final String USER = "sa";
@@ -37,8 +39,7 @@ public class H2DatabaseAccessorImpl implements H2DatabaseAccessor {
         dataSource = cpds;
     }
 
-    @Override
-    public Optional<BankClient> getClientFromH2DB(String firstName, String lastName, long cardNumber, int PIN) {
+    public Optional<BankClient> getClientFromRepository(String firstName, String lastName, long cardNumber, int PIN) {
 
         BankClient client = null;
 
@@ -79,8 +80,8 @@ public class H2DatabaseAccessorImpl implements H2DatabaseAccessor {
 
     private Account extractAccount(ResultSet resultSet) throws SQLException {
         return new Account(resultSet.getString("ACCOUNT_NUMBER"),
-                           resultSet.getLong("CARD_NUMBER"),
-                           resultSet.getString("CURRENCY"),
-                           resultSet.getBigDecimal("BALANCE"));
+                resultSet.getLong("CARD_NUMBER"),
+                resultSet.getString("CURRENCY"),
+                resultSet.getBigDecimal("BALANCE"));
     }
 }

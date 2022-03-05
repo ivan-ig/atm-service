@@ -1,7 +1,7 @@
 package com.github.ivanig.atmserver.controller;
 
-import com.github.ivanig.atmserver.AtmService;
 import com.github.ivanig.atmserver.dto.ResponseToClient;
+import com.github.ivanig.atmserver.service.AtmService;
 import com.github.ivanig.common.dto.RequestFromAtm;
 import com.github.ivanig.common.dto.ResponseToAtm;
 import lombok.Data;
@@ -27,6 +27,6 @@ public class ServerController {
     }
 
     private ResponseToAtm restTemplate(RequestFromAtm request) {
-        return bankController.getCardInfo(request);
+        return bankController.getCardAccountsInfo(request);
     }
 }
