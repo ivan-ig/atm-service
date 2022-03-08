@@ -40,7 +40,7 @@ class BankServiceTest {
             add(new Account("22", 16L, "USD", new BigDecimal("0.00")));
         }};
 
-        when(bankRepository.getClientFromRepository(request)).then(e ->
+        when(bankRepository.getClient(request)).then(e ->
                 Optional.of(new BankClient("any", "any", accounts)));
 
         Map<String, String> map = new HashMap<String, String>() {{
@@ -49,14 +49,14 @@ class BankServiceTest {
         }};
         ResponseToAtm expectedResponse = new ResponseToAtm(map);
 
-        Assertions.assertEquals(expectedResponse, bankService.prepareResponse(request));
+        Assertions.assertEquals(expectedResponse, bankService.getAccountsInfoConvertedToResponse(request));
     }
 
     @Test
     public void failPrepareResponse() {
 
-        when(bankRepository.getClientFromRepository(request)).then(e -> Optional.ofNullable(null));
+        when(bankRepository.getClient(request)).then(e -> Optional.ofNullable(null));
 
-        Assertions.assertThrows(ClientNotFoundException.class, () -> bankService.prepareResponse(request));
+        Assertions.assertThrows(ClientNotFoundException.class, () -> bankService.getAccountsInfoConvertedToResponse(request));
     }
 }

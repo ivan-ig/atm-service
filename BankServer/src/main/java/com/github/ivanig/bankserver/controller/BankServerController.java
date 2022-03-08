@@ -13,6 +13,6 @@ public class BankServerController {
     private BankService bankService;
 
     public ResponseToAtm getCardAccountsInfo(RequestFromAtm request) {
-        return bankService.prepareResponse(request);
+        return bankService.getAccountsInfoConvertedToResponse(request);
     }
 }

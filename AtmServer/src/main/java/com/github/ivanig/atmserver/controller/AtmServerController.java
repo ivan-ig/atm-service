@@ -24,7 +24,7 @@ public class AtmServerController {
         RequestFromAtm request = new RequestFromAtm(firstName, lastName, cardNumber, PIN);
         ResponseToAtm responseFromBank = restTemplate(request);
 
-        return atmService.prepareResponseToClient(responseFromBank);
+        return atmService.getResponseToClient(responseFromBank);
     }
 
     private ResponseToAtm restTemplate(RequestFromAtm request) {

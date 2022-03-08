@@ -40,7 +40,7 @@ public class BankRepository {
         dataSource = cpds;
     }
 
-    public Optional<BankClient> getClientFromRepository(RequestFromAtm request) {
+    public Optional<BankClient> getClient(RequestFromAtm request) {
 
         BankClient client = null;
 

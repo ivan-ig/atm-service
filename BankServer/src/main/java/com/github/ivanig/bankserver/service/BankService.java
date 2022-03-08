@@ -19,7 +19,7 @@ public class BankService {
     @NonNull
     private BankRepository bankRepository;
 
-    public ResponseToAtm prepareResponse(RequestFromAtm request) {
+    public ResponseToAtm getAccountsInfoConvertedToResponse(RequestFromAtm request) {
         Map<String, String> response = new HashMap<>();
         Set<Account> accounts = getCardAccounts(request);
         for (Account acc : accounts) {
@@ -31,7 +31,7 @@ public class BankService {
 
     public Set<Account> getCardAccounts(RequestFromAtm request) {
 
-        BankClient client = bankRepository.getClientFromRepository(request).
+        BankClient client = bankRepository.getClient(request).
                 orElseThrow(() -> new ClientNotFoundException("An error occurred while searching for a Client"));
 
         return client.getCardAccountsOnly();

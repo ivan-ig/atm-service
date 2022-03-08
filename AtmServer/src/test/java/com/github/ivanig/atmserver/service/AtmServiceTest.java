@@ -28,7 +28,7 @@ class AtmServiceTest {
 
     ResponseToClient expectedResponse = new ResponseToClient(accountInfo);
 
-    assertEquals(expectedResponse, atmService.prepareResponseToClient(responseFromBank));
+    assertEquals(expectedResponse, atmService.getResponseToClient(responseFromBank));
 
     }
 }

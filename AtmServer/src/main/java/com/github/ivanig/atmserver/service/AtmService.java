@@ -5,7 +5,7 @@ import com.github.ivanig.common.messages.ResponseToAtm;
 
 public class AtmService {
 
-    public ResponseToClient prepareResponseToClient(ResponseToAtm responseFromBank) {
+    public ResponseToClient getResponseToClient(ResponseToAtm responseFromBank) {
 
         return new ResponseToClient(responseFromBank.getCardAccounts());
     }
