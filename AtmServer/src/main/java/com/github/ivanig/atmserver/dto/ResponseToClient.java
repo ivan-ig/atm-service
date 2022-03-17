@@ -7,6 +7,7 @@ import java.util.Map;
 @Value
 public class ResponseToClient {
 
+    String clientName;
     Map<String, String> accountView;
 
 }

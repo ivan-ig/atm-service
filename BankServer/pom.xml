@@ -12,11 +12,7 @@
     <artifactId>BankServer</artifactId>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-
-        <h2.version>2.1.210</h2.version>
-        <c3p0.version>0.9.5.5</c3p0.version>
+        <java.version>1.8</java.version>
     </properties>
 
     <dependencies>
@@ -28,12 +24,10 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
-            <version>${c3p0.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
         </dependency>
     </dependencies>
 </project>

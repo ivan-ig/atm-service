@@ -23,9 +23,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.ivanig</groupId>
-            <artifactId>BankServer</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
     </dependencies>
 </project>

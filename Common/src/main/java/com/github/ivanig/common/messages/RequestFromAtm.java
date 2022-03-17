@@ -8,6 +8,6 @@ public class RequestFromAtm {
     String firstName;
     String lastName;
     long cardNumber;
-    int PIN;
+    int pinCode;
 
 }
