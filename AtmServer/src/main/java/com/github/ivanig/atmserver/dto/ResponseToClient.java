@@ -8,6 +8,6 @@ import java.util.Map;
 public class ResponseToClient {
 
     String clientName;
-    Map<String, String> accountView;
+    Map<String, String> accountsView;
 
 }

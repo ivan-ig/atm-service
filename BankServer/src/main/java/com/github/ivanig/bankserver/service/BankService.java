@@ -53,11 +53,11 @@ public class BankService implements BankServerController {
 
     private boolean isAccountContainsCardAndPin(Account account, Long cardNumber, Integer pinCode) {
         if (!cardNumber.equals(account.getCardNumber())) {
-            log.info("request.cardNumber: " + cardNumber + ", account.getCardNumber: " + account.getCardNumber());
+            log.info("Incongruity: request.cardNumber: " + cardNumber + ", account.getCardNumber: " + account.getCardNumber());
             throw new CardNotFoundException("The card is invalid, contact the bank.");
         }
         if (!pinCode.equals(account.getPinCode())) {
-            log.info("request.pinCode: " + pinCode + ", account.getPinCode()" + account.getPinCode());
+            log.info("Incongruity: request.pinCode: " + pinCode + ", account.getPinCode()" + account.getPinCode());
             throw new InvalidPinCodeException("Access denied. Wrong PIN-code entered.");
         }
         return true;
