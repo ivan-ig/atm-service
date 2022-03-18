@@ -1,12 +1,12 @@
-package com.github.ivanig.bankserver.exceptions;
+package com.github.ivanig.atmserver.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class InvalidPinCodeException extends RuntimeException {
+public class NotFoundOrBadRequestException extends RuntimeException {
 
-    public InvalidPinCodeException(String message) {
+    public NotFoundOrBadRequestException(String message) {
         super(message);
     }
 }
