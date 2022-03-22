@@ -3,10 +3,9 @@ package com.github.ivanig.bankserver.service;
 import com.github.ivanig.bankserver.controller.BankServerController;
 import com.github.ivanig.bankserver.entities.Account;
 import com.github.ivanig.bankserver.entities.Client;
-import com.github.ivanig.bankserver.exceptions.CardNotFoundException;
 import com.github.ivanig.bankserver.exceptions.ClientNotFoundException;
-import com.github.ivanig.bankserver.exceptions.InvalidPinCodeException;
 import com.github.ivanig.bankserver.repository.ClientRepository;
+import com.github.ivanig.common.messages.PinCodeStatus;
 import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;
 import lombok.AllArgsConstructor;
@@ -27,40 +26,32 @@ public class BankService implements BankServerController {
 
     @Override
     public ResponseToAtm getCardAccountsInfoAndConvertToResponse(RequestFromAtm request) {
-
         log.info("BankServer: " + request);
 
         Set<Client> clients =
                 clientRepository.findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName());
 
-        Client client = findClientByCardAndPin(clients, request.getCardNumber(), request.getPinCode());
+        Client client = findClientByCardNumber(clients, request.getCardNumber());
         Set<Account> cardAccounts = getClientCardAccounts(client, request.getCardNumber(), request.getPinCode());
 
-        return convertClientAndAccountsToResponse(client, cardAccounts);
+        PinCodeStatus status = registerPinCodeStatus(cardAccounts);
+
+        return convertClientAndAccountsToResponse(client, cardAccounts, status);
     }
 
-    private Client findClientByCardAndPin(Set<Client> clients, Long cardNumber, Integer pinCode) {
+    private Client findClientByCardNumber(Set<Client> clients, Long cardNumber) {
         return clients.stream()
-                .filter(client -> isClientHasCardAccount(client, cardNumber, pinCode))
+                .filter(client -> isClientHasCard(client, cardNumber))
                 .findFirst()
-                .orElseThrow(() -> new ClientNotFoundException("Unable to find client."));
+                .orElseThrow(() -> {
+                    log.info("ClientNotFoundException: Unable to find such a Client.");
+                    return new ClientNotFoundException();
+                });
     }
 
-    private boolean isClientHasCardAccount(Client client, Long cardNumber, Integer pinCode) {
+    private boolean isClientHasCard(Client client, Long cardNumber) {
         return client.getAccounts().stream()
-                .anyMatch(account -> isAccountContainsCardAndPin(account, cardNumber, pinCode));
-    }
-
-    private boolean isAccountContainsCardAndPin(Account account, Long cardNumber, Integer pinCode) {
-        if (!cardNumber.equals(account.getCardNumber())) {
-            log.info("Incongruity: request.cardNumber: " + cardNumber + ", account.getCardNumber: " + account.getCardNumber());
-            throw new CardNotFoundException("The card is invalid, contact the bank.");
-        }
-        if (!pinCode.equals(account.getPinCode())) {
-            log.info("Incongruity: request.pinCode: " + pinCode + ", account.getPinCode()" + account.getPinCode());
-            throw new InvalidPinCodeException("Access denied. Wrong PIN-code entered.");
-        }
-        return true;
+                .anyMatch(account -> cardNumber.equals(account.getCardNumber()));
     }
 
     private Set<Account> getClientCardAccounts(Client client, Long cardNumber, Integer pinCode) {
@@ -70,18 +61,30 @@ public class BankService implements BankServerController {
                 .collect(Collectors.toSet());
     }
 
-    private ResponseToAtm convertClientAndAccountsToResponse(Client client, Set<Account> cardAccounts) {
+    private PinCodeStatus registerPinCodeStatus(Set<Account> accounts) {
+        if (accounts.isEmpty()) {
+            log.info("Счетчик попыток ввода пин-кода в таблице Account уменьшен на единицу.");
+            return PinCodeStatus.INVALID;
+        } else {
+            log.info("Корректный пин-код. Счетчик попыток ввода пин-кода сброшен в значение по умолчанию.");
+            return PinCodeStatus.OK;
+        }
+    }
 
-        Map<String, String> accountsAndBalances = cardAccounts.stream().collect(Collectors.toMap(
-                Account::getNumber,
-                account -> account.getAmount() + " " + account.getCurrency()));
+    private ResponseToAtm convertClientAndAccountsToResponse(
+            Client client, Set<Account> cardAccounts, PinCodeStatus status) {
+
+        Map<String, String> accountsAndBalances =
+                cardAccounts.stream().collect(Collectors.toMap(
+                        Account::getNumber,
+                        account -> account.getAmount() + " " + account.getCurrency()));
 
         Map<String, String> unmodifiableAccountsAndBalances = Collections.unmodifiableMap(accountsAndBalances);
 
-        ResponseToAtm response =
-                new ResponseToAtm(client.getFirstName(), client.getPatronymic(), unmodifiableAccountsAndBalances);
-        log.info("BankServer: " + response);
+        ResponseToAtm response = new ResponseToAtm(
+                client.getFirstName(), client.getPatronymic(), unmodifiableAccountsAndBalances, status);
 
+        log.info("BankServer: " + response);
         return response;
     }
 }
