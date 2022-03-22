@@ -2,9 +2,9 @@ package com.github.ivanig.atmserver.service;
 
 import com.github.ivanig.atmserver.controller.AtmServerController;
 import com.github.ivanig.atmserver.dto.ResponseToClient;
-import com.github.ivanig.atmserver.exceptions.InternalAtmServerErrorException;
+import com.github.ivanig.atmserver.exceptions.BadRequestException;
 import com.github.ivanig.atmserver.exceptions.InternalBankServerErrorException;
-import com.github.ivanig.atmserver.exceptions.NotFoundOrBadRequestException;
+import com.github.ivanig.common.messages.PinCodeStatus;
 import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -40,22 +41,37 @@ public class AtmService implements AtmServerController {
                 .body(Mono.just(request), RequestFromAtm.class)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError,
-                            er -> Mono.error(new NotFoundOrBadRequestException("Invalid request parameters...")))
-                    .onStatus(HttpStatus::is5xxServerError,
-                            er -> Mono.error(new InternalBankServerErrorException("Server is not responding.")))
+                .onStatus(HttpStatus::is4xxClientError,
+                        er -> {
+                            log.info("BadRequestException: Something is wrong with request body/parameters.");
+                            return Mono.error(new BadRequestException());
+                        })
+                .onStatus(HttpStatus::is5xxServerError,
+                        er -> {
+                            log.info("InternalBankServerErrorException: Server is not responding.");
+                            return Mono.error(new InternalBankServerErrorException());
+                        })
                 .bodyToMono(ResponseToAtm.class)
-                .blockOptional().orElseThrow(() -> new InternalAtmServerErrorException("Server returns \"null\"."));
+                .blockOptional().orElseThrow(() -> {
+                    log.info("InternalBankServerErrorException: Server returns \"null\".");
+                    return new InternalBankServerErrorException();
+                });
 
-        return convertResponseFromBankToResponseForClient(response);
+        return analyzeAndConvertResponseFromBankToResponseForClient(response);
     }
 
-    public ResponseToClient convertResponseFromBankToResponseForClient(ResponseToAtm responseFromBank) {
-
+    public ResponseToClient analyzeAndConvertResponseFromBankToResponseForClient(ResponseToAtm responseFromBank) {
         String clientName = responseFromBank.getFirstname() + " " + responseFromBank.getPatronymic();
         Map<String, String> accountsAndBalances =
                 Collections.unmodifiableMap(responseFromBank.getAccountsAndBalances());
+        String pinCodeStatus = "Ok";
 
-        return new ResponseToClient(clientName, accountsAndBalances);
+        if (PinCodeStatus.INVALID == responseFromBank.getPinCodeStatus()) {
+            clientName = "";
+            accountsAndBalances = Collections.unmodifiableMap(new HashMap<>());
+            pinCodeStatus = "Invalid pin-code was entered.";
+        }
+
+        return new ResponseToClient(clientName, accountsAndBalances, pinCodeStatus);
     }
 }
