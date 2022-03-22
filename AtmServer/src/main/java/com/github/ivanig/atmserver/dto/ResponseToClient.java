@@ -9,5 +9,6 @@ public class ResponseToClient {
 
     String clientName;
     Map<String, String> accountsView;
+    String pinCodeStatus;
 
 }
