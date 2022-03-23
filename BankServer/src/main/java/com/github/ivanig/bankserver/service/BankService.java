@@ -39,7 +39,7 @@ public class BankService implements BankServerController {
         return convertClientAndAccountsToResponse(client, cardAccounts, status);
     }
 
-    private Client findClientByCardNumber(Set<Client> clients, Long cardNumber) {
+    private Client findClientByCardNumber(Set<Client> clients, long cardNumber) {
         return clients.stream()
                 .filter(client -> isClientHasCard(client, cardNumber))
                 .findFirst()
@@ -71,9 +71,9 @@ public class BankService implements BankServerController {
         }
     }
 
-    private ResponseToAtm convertClientAndAccountsToResponse(
-            Client client, Set<Account> cardAccounts, PinCodeStatus status) {
-
+    private ResponseToAtm convertClientAndAccountsToResponse(Client client,
+                                                             Set<Account> cardAccounts,
+                                                             PinCodeStatus status) {
         Map<String, String> accountsAndBalances =
                 cardAccounts.stream().collect(Collectors.toMap(
                         Account::getNumber,

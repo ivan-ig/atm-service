@@ -1,6 +1,5 @@
 package com.github.ivanig.atmserver.service;
 
-import com.github.ivanig.atmserver.controller.AtmServerController;
 import com.github.ivanig.atmserver.dto.ResponseToClient;
 import com.github.ivanig.atmserver.exceptions.BadRequestException;
 import com.github.ivanig.atmserver.exceptions.InternalBankServerErrorException;
@@ -22,45 +21,34 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class AtmService implements AtmServerController {
+public class AtmService {
 
-    public ResponseToClient getBalance(@Value("${cardData.firstname}") String firstName,
-                                       @Value("${cardData.lastname}") String lastName,
-                                       @Value("${cardData.number}") long cardNumber,
-                                       @Value("${cardData.pinCode}") int pinCode,
-                                       @Value("${webClient.bankServerURL}") String bankServerURL) {
+    private final WebClient webClient;
 
-        RequestFromAtm request = new RequestFromAtm(firstName, lastName, cardNumber, pinCode);
-        log.info(request.toString());
+    public AtmService(@Value("${webClient.bankServerURL}") String baseURL) {
+        this.webClient = WebClient.create(baseURL);
+    }
 
-        ResponseToAtm response = WebClient
-                .create(bankServerURL)
+    public Mono<ResponseToAtm> getClientInfoFromBank(RequestFromAtm request) {
+        return webClient
                 .post()
-                .uri("clientInfo")
+                .uri("/clientInfo")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(Mono.just(request), RequestFromAtm.class)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError,
-                        er -> {
-                            log.info("BadRequestException: Something is wrong with request body/parameters.");
-                            return Mono.error(new BadRequestException());
-                        })
-                .onStatus(HttpStatus::is5xxServerError,
-                        er -> {
-                            log.info("InternalBankServerErrorException: Server is not responding.");
-                            return Mono.error(new InternalBankServerErrorException());
-                        })
-                .bodyToMono(ResponseToAtm.class)
-                .blockOptional().orElseThrow(() -> {
-                    log.info("InternalBankServerErrorException: Server returns \"null\".");
-                    return new InternalBankServerErrorException();
-                });
-
-        return analyzeAndConvertResponseFromBankToResponseForClient(response);
+                .onStatus(HttpStatus::is4xxClientError, er -> {
+                    log.info("BadRequestException: Something is wrong with request body/parameters.");
+                    return Mono.error(new BadRequestException());
+                })
+                .onStatus(HttpStatus::is5xxServerError, er -> {
+                    log.info("InternalBankServerErrorException: Server is not responding.");
+                    return Mono.error(new InternalBankServerErrorException());
+                })
+                .bodyToMono(ResponseToAtm.class);
     }
 
-    public ResponseToClient analyzeAndConvertResponseFromBankToResponseForClient(ResponseToAtm responseFromBank) {
+    public ResponseToClient analyzeAndConvertToResponseForClient(ResponseToAtm responseFromBank) {
         String clientName = responseFromBank.getFirstname() + " " + responseFromBank.getPatronymic();
         Map<String, String> accountsAndBalances =
                 Collections.unmodifiableMap(responseFromBank.getAccountsAndBalances());

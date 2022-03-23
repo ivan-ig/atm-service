@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.RestController;
 public interface AtmServerController {
 
     @GetMapping(path = "/balance", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseToClient getBalance(String firstName, String lastName, long cardNumber, int pinCode, String bankServerURL);
+    ResponseToClient getBalance(String firstName, String lastName, long cardNumber, int pinCode);
 }
