@@ -5,7 +5,7 @@ import com.github.ivanig.common.messages.ResponseToAtm;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/")
+@RestController
 public interface BankServerController {
 
     @PostMapping(path = "/clientInfo",

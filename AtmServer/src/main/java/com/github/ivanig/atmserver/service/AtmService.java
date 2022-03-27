@@ -1,11 +1,13 @@
 package com.github.ivanig.atmserver.service;
 
+import com.github.ivanig.atmserver.controller.AtmServerController;
 import com.github.ivanig.atmserver.dto.ResponseToClient;
 import com.github.ivanig.atmserver.exceptions.BadRequestException;
 import com.github.ivanig.atmserver.exceptions.InternalBankServerErrorException;
 import com.github.ivanig.common.messages.PinCodeStatus;
 import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -21,15 +23,20 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class AtmService {
+@AllArgsConstructor
+public class AtmService implements AtmServerController {
 
-    private final WebClient webClient;
+    private WebClient webClient;
 
-    public AtmService(@Value("${webClient.bankServerURL}") String baseURL) {
-        this.webClient = WebClient.create(baseURL);
-    }
+    @Override
+    public Mono<ResponseToClient> getBalance(@Value("${cardData.firstname}") String firstName,
+                                             @Value("${cardData.lastname}") String lastName,
+                                             @Value("${cardData.number}") long cardNumber,
+                                             @Value("${cardData.pinCode}") int pinCode) {
 
-    public Mono<ResponseToAtm> getClientInfoFromBank(RequestFromAtm request) {
+        RequestFromAtm request = new RequestFromAtm(firstName, lastName, cardNumber, pinCode);
+        log.info(request.toString());
+
         return webClient
                 .post()
                 .uri("/clientInfo")
@@ -45,16 +52,17 @@ public class AtmService {
                     log.info("InternalBankServerErrorException: Server is not responding.");
                     return Mono.error(new InternalBankServerErrorException());
                 })
-                .bodyToMono(ResponseToAtm.class);
+                .bodyToMono(ResponseToAtm.class)
+                .map(this::analyzeAndConvertToResponseForClient);
     }
 
-    public ResponseToClient analyzeAndConvertToResponseForClient(ResponseToAtm responseFromBank) {
+    private ResponseToClient analyzeAndConvertToResponseForClient(ResponseToAtm responseFromBank) {
         String clientName = responseFromBank.getFirstname() + " " + responseFromBank.getPatronymic();
         Map<String, String> accountsAndBalances =
                 Collections.unmodifiableMap(responseFromBank.getAccountsAndBalances());
         String pinCodeStatus = "Ok";
 
-        if (PinCodeStatus.INVALID == responseFromBank.getPinCodeStatus()) {
+        if (responseFromBank.getPinCodeStatus() == PinCodeStatus.INVALID) {
             clientName = "";
             accountsAndBalances = Collections.unmodifiableMap(new HashMap<>());
             pinCodeStatus = "Invalid pin-code was entered.";
