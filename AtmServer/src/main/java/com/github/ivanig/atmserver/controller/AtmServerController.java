@@ -9,6 +9,6 @@ import reactor.core.publisher.Mono;
 @RestController
 public interface AtmServerController {
 
-    @GetMapping(path = {"/balance", "/"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    Mono<ResponseToClient> getBalance(String firstName, String lastName, long cardNumber, int pinCode);
+    @GetMapping(path = "/balance", produces = MediaType.APPLICATION_JSON_VALUE)
+    Mono<ResponseToClient> getInfoAndBalance(String firstName, String lastName, long cardNumber, int pinCode);
 }

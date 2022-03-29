@@ -11,6 +11,6 @@ public interface BankServerController {
     @PostMapping(path = "/clientInfo",
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseToAtm getCardAccountsInfoAndConvertToResponse(@RequestBody RequestFromAtm request);
+    ResponseToAtm getClientInfo(@RequestBody RequestFromAtm request);
 
 }

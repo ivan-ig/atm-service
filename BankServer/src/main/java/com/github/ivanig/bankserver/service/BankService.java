@@ -1,6 +1,5 @@
 package com.github.ivanig.bankserver.service;
 
-import com.github.ivanig.bankserver.controller.BankServerController;
 import com.github.ivanig.bankserver.entities.Account;
 import com.github.ivanig.bankserver.entities.Client;
 import com.github.ivanig.bankserver.exceptions.ClientNotFoundException;
@@ -20,21 +19,18 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class BankService implements BankServerController {
+public class BankService {
 
     private ClientRepository clientRepository;
 
-    @Override
     public ResponseToAtm getCardAccountsInfoAndConvertToResponse(RequestFromAtm request) {
-        log.info("BankServer: " + request);
-
         Set<Client> clients =
                 clientRepository.findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName());
 
         Client client = findClientByCardNumber(clients, request.getCardNumber());
         Set<Account> cardAccounts = getClientCardAccounts(client, request.getCardNumber(), request.getPinCode());
 
-        PinCodeStatus status = registerPinCodeStatus(cardAccounts);
+        PinCodeStatus status = registerPinCodeStatus(cardAccounts, request.getCardNumber());
 
         return convertClientAndAccountsToResponse(client, cardAccounts, status);
     }
@@ -44,7 +40,7 @@ public class BankService implements BankServerController {
                 .filter(client -> isClientHasCard(client, cardNumber))
                 .findFirst()
                 .orElseThrow(() -> {
-                    log.info("ClientNotFoundException: Unable to find such a Client.");
+                    log.error("ClientNotFoundException: Unable to find such a Client.");
                     return new ClientNotFoundException();
                 });
     }
@@ -61,12 +57,14 @@ public class BankService implements BankServerController {
                 .collect(Collectors.toSet());
     }
 
-    private PinCodeStatus registerPinCodeStatus(Set<Account> accounts) {
+    private PinCodeStatus registerPinCodeStatus(Set<Account> accounts, long cardNumber) {
         if (accounts.isEmpty()) {
-            log.info("Счетчик попыток ввода пин-кода в таблице Account уменьшен на единицу.");
+            log.info("Счетчик попыток ввода пин-кода для карты " + cardNumber +
+                    " в таблице БД уменьшен на единицу.");
             return PinCodeStatus.INVALID;
         } else {
-            log.info("Корректный пин-код. Счетчик попыток ввода пин-кода сброшен в значение по умолчанию.");
+            log.info("Корректный пин-код. Счетчик попыток ввода пин-кода для карты " + cardNumber +
+                    " сброшен в значение по умолчанию.");
             return PinCodeStatus.OK;
         }
     }

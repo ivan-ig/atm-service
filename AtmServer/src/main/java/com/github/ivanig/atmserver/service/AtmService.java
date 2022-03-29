@@ -1,62 +1,29 @@
 package com.github.ivanig.atmserver.service;
 
-import com.github.ivanig.atmserver.controller.AtmServerController;
 import com.github.ivanig.atmserver.dto.ResponseToClient;
-import com.github.ivanig.atmserver.exceptions.BadRequestException;
-import com.github.ivanig.atmserver.exceptions.InternalBankServerErrorException;
 import com.github.ivanig.common.messages.PinCodeStatus;
-import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Service
-@AllArgsConstructor
-public class AtmService implements AtmServerController {
+public class AtmService {
 
-    private WebClient webClient;
+    @Value("${atmService.auth.username}")
+    private String serverLogin;
 
-    @Override
-    public Mono<ResponseToClient> getBalance(@Value("${cardData.firstname}") String firstName,
-                                             @Value("${cardData.lastname}") String lastName,
-                                             @Value("${cardData.number}") long cardNumber,
-                                             @Value("${cardData.pinCode}") int pinCode) {
+    @Value("${atmService.auth.password}")
+    private String serverPassword;
 
-        RequestFromAtm request = new RequestFromAtm(firstName, lastName, cardNumber, pinCode);
-        log.info(request.toString());
-
-        return webClient
-                .post()
-                .uri("/clientInfo")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .body(Mono.just(request), RequestFromAtm.class)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, er -> {
-                    log.info("BadRequestException: Something is wrong with request body/parameters.");
-                    return Mono.error(new BadRequestException());
-                })
-                .onStatus(HttpStatus::is5xxServerError, er -> {
-                    log.info("InternalBankServerErrorException: Server is not responding.");
-                    return Mono.error(new InternalBankServerErrorException());
-                })
-                .bodyToMono(ResponseToAtm.class)
-                .map(this::analyzeAndConvertToResponseForClient);
-    }
-
-    private ResponseToClient analyzeAndConvertToResponseForClient(ResponseToAtm responseFromBank) {
+    public ResponseToClient analyzeAndConvertToResponseForClient(ResponseToAtm responseFromBank) {
         String clientName = responseFromBank.getFirstname() + " " + responseFromBank.getPatronymic();
         Map<String, String> accountsAndBalances =
                 Collections.unmodifiableMap(responseFromBank.getAccountsAndBalances());
@@ -65,9 +32,15 @@ public class AtmService implements AtmServerController {
         if (responseFromBank.getPinCodeStatus() == PinCodeStatus.INVALID) {
             clientName = "";
             accountsAndBalances = Collections.unmodifiableMap(new HashMap<>());
-            pinCodeStatus = "Invalid pin-code was entered.";
+            pinCodeStatus = "Invalid pin-code entered.";
         }
 
         return new ResponseToClient(clientName, accountsAndBalances, pinCodeStatus);
+    }
+
+    public String createAuthHeaderValue() {
+        String auth = serverLogin + ":" + serverPassword;
+        byte[] encodedAuth = Base64.getMimeEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
+        return "Basic " + new String(encodedAuth);
     }
 }
