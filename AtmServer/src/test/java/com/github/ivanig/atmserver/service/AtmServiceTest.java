@@ -1,122 +1,71 @@
 package com.github.ivanig.atmserver.service;
 
 import com.github.ivanig.atmserver.dto.ResponseToClient;
-import com.github.ivanig.atmserver.exceptions.BadRequestException;
-import lombok.SneakyThrows;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import com.github.ivanig.common.messages.PinCodeStatus;
+import com.github.ivanig.common.messages.ResponseToAtm;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootTest
 class AtmServiceTest {
 
-    private static MockWebServer mockWebServer;
+    @Value("${atmService.auth.username}")
+    private String serverLogin;
+
+    @Value("${atmService.auth.password}")
+    private String serverPassword;
+
+    @Autowired
     private AtmService atmService;
 
-    @BeforeAll
-    static void setUp() throws IOException {
-        mockWebServer = new MockWebServer();
-        mockWebServer.start();
-    }
-
-    @AfterAll
-    static void tearDown() throws IOException {
-        mockWebServer.shutdown();
-    }
-
-    @BeforeEach
-    void init() {
-        WebClient webClient = WebClient.create("http://localhost:" + mockWebServer.getPort());
-        atmService = new AtmService(webClient);
-    }
-
-    @SneakyThrows
     @Test
-    public void successGetClientInfoFromBank() {
+    void successAnalyzeAndConvertToResponseForClient_invalidPinCode() {
+        ResponseToAtm responseFromBank = new ResponseToAtm(
+                "fn", "pa", new HashMap<>(), PinCodeStatus.INVALID);
 
-        mockWebServer.enqueue(new MockResponse()
-                .setBody("{\"firstname\":\"fn\",\"patronymic\":\"pa\"," +
-                        "\"accountsAndBalances\":{\"20\":\"0.00 EUR\"," +
-                                                 "\"21\":\"0.00 USD\"," +
-                                                 "\"22\":\"0.00 RUB\"}," +
-                        "\"pinCodeStatus\":\"OK\"}")
-                .addHeader("Content-Type", "application/json"));
+        ResponseToClient actual = atmService.analyzeAndConvertToResponseForClient(responseFromBank);
 
-        Mono<ResponseToClient> responseMock =
-                atmService.getBalance("fn", "ln", 16L, 1111);
+        ResponseToClient expected = new ResponseToClient(
+                "", Collections.emptyMap(), "Invalid pin-code entered.");
 
-        StepVerifier
-                .create(responseMock)
-                .expectNextMatches(r ->
-                        (r.getClientName().contains("fn")) &&
-                                !r.getAccountsView().isEmpty() &&
-                                "Ok".equals(r.getPinCodeStatus()))
-                .verifyComplete();
-
-        RecordedRequest recordedRequest = mockWebServer.takeRequest();
-
-        assertEquals("POST", recordedRequest.getMethod());
-        assertEquals("/clientInfo", recordedRequest.getPath());
+        Assertions.assertEquals(expected, actual);
     }
 
-    @SneakyThrows
     @Test
-    public void successGetClientInfoFromBank_invalidPinCode() {
+    void successAnalyzeAndConvertToResponseForClient_OkPinCode() {
+        Map<String, String> accountsAndBalances = new HashMap<String, String>() {{
+            put("20", "0.00 EUR");
+            put("21", "0.00 RUB");
+        }};
 
-        mockWebServer.enqueue(new MockResponse()
-                .setBody("{\"clientName\":{}," +
-                        "\"accountsAndBalances\":{}," +
-                        "\"pinCodeStatus\":\"INVALID\"}")
-                .addHeader("Content-Type", "application/json"));
+        ResponseToAtm responseFromBank = new ResponseToAtm(
+                "fn", "pa", accountsAndBalances, PinCodeStatus.OK);
 
-        Mono<ResponseToClient> responseMock =
-                atmService.getBalance("fn", "ln", 16L, 0);
+        ResponseToClient actual = atmService.analyzeAndConvertToResponseForClient(responseFromBank);
 
-        StepVerifier
-                .create(responseMock)
-                .expectNextMatches(r ->
-                        ("".equals(r.getClientName())) &&
-                                r.getAccountsView().isEmpty() &&
-                                r.getPinCodeStatus().contains("Invalid pin-code"))
-                .verifyComplete();
+        ResponseToClient expected = new ResponseToClient(
+                "fn pa", accountsAndBalances, "Ok");
 
-        RecordedRequest recordedRequest = mockWebServer.takeRequest();
-
-        assertEquals("POST", recordedRequest.getMethod());
-        assertEquals("/clientInfo", recordedRequest.getPath());
+        Assertions.assertEquals(expected, actual);
     }
 
-    @SneakyThrows
     @Test
-    public void failGetClientInfoFromBank() {
+    void successCreateAuthHeaderValue() {
+        String auth = serverLogin + ":" + serverPassword;
 
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .addHeader("Content-Type", "application/json"));
+        String actual = "Basic " + new String(Base64.getMimeEncoder().encode(auth.getBytes(StandardCharsets.UTF_8)));
 
-        Mono<ResponseToClient> responseMock =
-                atmService.getBalance("wrong", "wrong", 0L, 0);
+        String expected = atmService.createAuthHeaderValue();
 
-        StepVerifier
-                .create(responseMock)
-                .expectError(BadRequestException.class)
-                .verify();
-
-        RecordedRequest recordedRequest = mockWebServer.takeRequest();
-
-        assertEquals("POST", recordedRequest.getMethod());
-        assertEquals("/clientInfo", recordedRequest.getPath());
+        Assertions.assertEquals(expected, actual);
     }
 }
