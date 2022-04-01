@@ -16,9 +16,9 @@
     </parent>
 
     <modules>
-        <module>AtmServer</module>
-        <module>BankServer</module>
-        <module>Common</module>
+        <module>atm</module>
+        <module>bank-server</module>
+        <module>common</module>
     </modules>
 
     <properties>
