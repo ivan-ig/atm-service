@@ -1,7 +1,7 @@
 # Project exclude paths
-/BankServer/target/
-/AtmServer/target/
-/Common/target/
+/bank-server/target/
+/atm/target/
+/common/target/
 
 .idea
 *.iws
