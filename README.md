@@ -20,7 +20,7 @@
 | UnauthorizedException             | Не удалось получить права для доступа к ресурсам **bank-server**'a                                       |
 | InternalBankServerErrorException  | Непредвиденная ошибка на стороне **bank-server**'a                                                       |
 
-### DTO RequestToClient
+### DTO ResponseToClient
 | Тип                 | Поле          |
 |---------------------|---------------|
 | String              | clientName    |
