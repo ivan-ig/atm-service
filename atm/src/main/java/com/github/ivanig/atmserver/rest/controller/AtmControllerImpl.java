@@ -1,9 +1,10 @@
-package com.github.ivanig.atmserver.controller;
+package com.github.ivanig.atmserver.rest.controller;
 
-import com.github.ivanig.atmserver.dto.ResponseToClient;
 import com.github.ivanig.atmserver.exceptions.InternalBankServerErrorException;
 import com.github.ivanig.atmserver.exceptions.NotFoundException;
 import com.github.ivanig.atmserver.exceptions.UnauthorizedException;
+import com.github.ivanig.atmserver.kafka.AtmKafkaService;
+import com.github.ivanig.atmserver.rest.dto.ResponseToClient;
 import com.github.ivanig.atmserver.service.AtmService;
 import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;
@@ -15,9 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -27,6 +26,7 @@ public class AtmControllerImpl implements AtmController {
 
     private WebClient webClient;
     private AtmService atmService;
+    private AtmKafkaService kafkaService;
 
     @Override
     public Mono<ResponseToClient> getInfoAndBalance(int atmNumber,
@@ -36,7 +36,7 @@ public class AtmControllerImpl implements AtmController {
                                                     @Value("${atmService.cardData.pinCode}") int pinCode) {
 
         RequestFromAtm request = new RequestFromAtm(firstName, lastName, cardNumber, pinCode);
-        log.info("Atm[" +atmNumber + "].Controller: " + request);
+        log.debug("Atm #" + atmNumber + ": [" + request + "]");
 
         return webClient
                 .post()
@@ -52,4 +52,27 @@ public class AtmControllerImpl implements AtmController {
                 .bodyToMono(ResponseToAtm.class)
                 .map(item -> atmService.analyzeAndConvertToResponseForClient(item));
     }
+
+    @Override
+    public ResponseToClient getInfoAndBalanceWithKafka(int atmNumber,
+                                           @Value("${atmService.cardData.firstname}") @NonNull String firstName,
+                                           @Value("${atmService.cardData.lastname}") @NonNull String lastName,
+                                           @Value("${atmService.cardData.number}") long cardNumber,
+                                           @Value("${atmService.cardData.pinCode}") int pinCode) {
+
+        RequestFromAtm request = new RequestFromAtm(firstName, lastName, cardNumber, pinCode);
+        log.debug("Atm #" + atmNumber + ": [" + request + "]");
+
+        kafkaService.sendMessage(request);
+
+        return kafkaService.awaitMessage();
+    }
+
+        //TODO
+        // реализовать REST ответ от Kafka
+        // Kafka и исключения на стороне сервера
+        // исправить тесты
+        // обновить описание в README.md
+        // изучить protobuf
+
 }

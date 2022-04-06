@@ -1,4 +1,4 @@
-package com.github.ivanig.atmserver.dto;
+package com.github.ivanig.atmserver.rest.dto;
 
 import lombok.Value;
 

@@ -20,12 +20,12 @@ import java.util.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-class BankServiceTest {
+class BankServerServiceTest {
 
     @Mock
     private ClientRepository clientRepository;
 
-    private BankService bankService;
+    private BankServerService bankServerService;
     private static Set<Account> accounts;
     private static Set<Client> clients;
 
@@ -56,7 +56,7 @@ class BankServiceTest {
 
     @BeforeEach
     public void init() {
-        bankService = new BankService(clientRepository);
+        bankServerService = new BankServerService(clientRepository);
     }
 
     @Test
@@ -72,7 +72,7 @@ class BankServiceTest {
         ResponseToAtm expectedResponse = new ResponseToAtm(
                 "fn", "pa", accountsAndBalances, PinCodeStatus.OK);
 
-        Assertions.assertEquals(expectedResponse, bankService.getCardAccountsInfoAndConvertToResponse(request));
+        Assertions.assertEquals(expectedResponse, bankServerService.getCardAccountsInfoAndConvertToResponse(request));
 
         verify(clientRepository, times(1))
                 .findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName());
@@ -88,7 +88,7 @@ class BankServiceTest {
         ResponseToAtm expectedResponse = new ResponseToAtm(
                 "fn", "pa", new HashMap<>(), PinCodeStatus.INVALID);
 
-        Assertions.assertEquals(expectedResponse, bankService.getCardAccountsInfoAndConvertToResponse(request));
+        Assertions.assertEquals(expectedResponse, bankServerService.getCardAccountsInfoAndConvertToResponse(request));
 
         verify(clientRepository, times(1))
                 .findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName());
@@ -102,7 +102,7 @@ class BankServiceTest {
                 .thenReturn(Collections.emptySet());
 
         Assertions.assertThrows(ClientNotFoundException.class,
-                () -> bankService.getCardAccountsInfoAndConvertToResponse(request));
+                () -> bankServerService.getCardAccountsInfoAndConvertToResponse(request));
 
         verify(clientRepository, times(1))
                 .findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName());

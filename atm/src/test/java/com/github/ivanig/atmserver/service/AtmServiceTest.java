@@ -1,6 +1,6 @@
 package com.github.ivanig.atmserver.service;
 
-import com.github.ivanig.atmserver.dto.ResponseToClient;
+import com.github.ivanig.atmserver.rest.dto.ResponseToClient;
 import com.github.ivanig.common.messages.PinCodeStatus;
 import com.github.ivanig.common.messages.ResponseToAtm;
 import org.junit.jupiter.api.Assertions;

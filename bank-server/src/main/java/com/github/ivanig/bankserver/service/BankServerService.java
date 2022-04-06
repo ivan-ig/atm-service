@@ -8,6 +8,7 @@ import com.github.ivanig.common.messages.PinCodeStatus;
 import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -15,9 +16,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
-public class BankService {
+public class BankServerService {
 
     private ClientRepository clientRepository;
 
@@ -70,7 +72,10 @@ public class BankService {
 
         Map<String, String> unmodifiableAccountsAndBalances = Collections.unmodifiableMap(accountsAndBalances);
 
-        return new ResponseToAtm(
+        ResponseToAtm response = new ResponseToAtm(
                 client.getFirstName(), client.getPatronymic(), unmodifiableAccountsAndBalances, pinStatus);
+
+        log.debug("Ready to send: [" + response + "]");
+        return response;
     }
 }
