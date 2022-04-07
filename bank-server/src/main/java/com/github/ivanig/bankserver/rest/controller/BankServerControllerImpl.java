@@ -16,7 +16,7 @@ public class BankServerControllerImpl implements BankServerController {
 
     @Override
     public ResponseToAtm getClientInfo(RequestFromAtm request) {
-        log.debug("Received: [" + request + "]");
+        log.debug("Received(REST): [" + request + "]");
         return bankServerService.getCardAccountsInfoAndConvertToResponse(request);
     }
 }

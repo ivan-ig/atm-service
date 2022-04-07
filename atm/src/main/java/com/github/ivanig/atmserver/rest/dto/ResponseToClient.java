@@ -7,6 +7,7 @@ import java.util.Map;
 @Value
 public class ResponseToClient {
 
+    String id;
     String clientName;
     Map<String, String> accountsView;
     String pinCodeStatus;

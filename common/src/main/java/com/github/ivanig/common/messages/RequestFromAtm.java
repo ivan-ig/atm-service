@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 public class RequestFromAtm {
 
+    private String id;
     private String firstName;
     private String lastName;
     private long cardNumber;

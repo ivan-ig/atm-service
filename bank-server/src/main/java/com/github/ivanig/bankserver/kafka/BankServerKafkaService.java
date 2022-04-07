@@ -1,6 +1,9 @@
 package com.github.ivanig.bankserver.kafka;
 
+import com.github.ivanig.bankserver.exceptions.CardNotFoundException;
+import com.github.ivanig.bankserver.exceptions.ClientNotFoundException;
 import com.github.ivanig.bankserver.service.BankServerService;
+import com.github.ivanig.common.messages.PinCodeStatus;
 import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;
 import lombok.AllArgsConstructor;
@@ -12,6 +15,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import static java.util.Collections.emptyMap;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -22,15 +27,31 @@ public class BankServerKafkaService {
 
     @KafkaListener(topics = "requests", containerFactory = "requestKafkaListenerContainerFactory")
     private void requestListener(RequestFromAtm request) {
+        log.debug("Received(Kafka) [" + request + "]");
 
-        ResponseToAtm response = bankServerService.getCardAccountsInfoAndConvertToResponse(request);
-        log.debug("Received [" + response + "]");
-        sendMessage(response);
+        try {
+            ResponseToAtm response = bankServerService.getCardAccountsInfoAndConvertToResponse(request);
+            sendMessage(response);
+
+        } catch (ClientNotFoundException clnfe) {
+            log.error("Message: " + clnfe.getMessage());
+            ResponseToAtm response = new ResponseToAtm(
+                    request.getId(), "CLIENT", "NOT_FOUND", emptyMap(), PinCodeStatus.OK);
+            sendMessage(response);
+
+        } catch (CardNotFoundException crdnfe) {
+            log.error("Message: " + crdnfe.getMessage());
+            ResponseToAtm response = new ResponseToAtm(
+                    request.getId(), "CARD", "NOT_FOUND", emptyMap(), PinCodeStatus.OK);
+            sendMessage(response);
+        }
+
     }
 
     private void sendMessage(ResponseToAtm response) {
         kafkaTemplate.send("responses", response)
                 .addCallback(new ListenableFutureCallback<SendResult<String, ResponseToAtm>>() {
+
                     @Override
                     public void onFailure(@NonNull Throwable ex) {
                         log.debug("Unable to send [" + response + "] due to " + ex.getMessage());

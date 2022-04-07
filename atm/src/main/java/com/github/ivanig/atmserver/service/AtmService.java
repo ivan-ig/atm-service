@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -34,9 +31,10 @@ public class AtmService {
             accountsAndBalances = Collections.unmodifiableMap(new HashMap<>());
             pinCodeStatus = "Invalid pin-code entered";
         }
-        ResponseToClient response = new ResponseToClient(clientName, accountsAndBalances, pinCodeStatus);
+        ResponseToClient response = new ResponseToClient(
+                responseFromBank.getId(), clientName, accountsAndBalances, pinCodeStatus);
 
-        log.debug("Ready to send: [" + response + "]");
+        log.debug("Converted to: [" + response + "]");
         return response;
     }
 
@@ -44,5 +42,9 @@ public class AtmService {
         String auth = serverLogin + ":" + serverPassword;
         byte[] encodedAuth = Base64.getMimeEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
         return "Basic " + new String(encodedAuth);
+    }
+
+    public String getOperationId() {
+        return ":" + new Random().nextInt(100000) + 1;
     }
 }
