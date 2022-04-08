@@ -45,9 +45,9 @@ class BankServerControllerTest {
 
     @SneakyThrows
     @Test
-    public void successGetClientInfo() {
+    void successGetClientInfo() {
         RequestFromAtm request = new RequestFromAtm(
-                "IVAN", "IG", 1616161616161111L,1234);
+                "1:10001","IVAN", "IG", 1616161616161111L, 1234);
 
         Map<String, String> balances = new HashMap<String, String>() {{
             put("77777777777777733333", "0.00 EUR");
@@ -55,7 +55,7 @@ class BankServerControllerTest {
             put("77777777777777711111", "0.00 RUB");
         }};
         ResponseToAtm expectedResponse = new ResponseToAtm(
-                "IVAN", "IVANOVICH", balances, PinCodeStatus.OK);
+                "1:10001", "IVAN", "IVANOVICH", balances, PinCodeStatus.OK);
 
         mvc.perform(post("/clientInfo").contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, headerValue)
@@ -66,12 +66,12 @@ class BankServerControllerTest {
 
     @SneakyThrows
     @Test
-    public void successGetClientInfo_invalidPinCode() {
+    void successGetClientInfo_invalidPinCode() {
         RequestFromAtm request = new RequestFromAtm(
-                "IVAN", "IG", 1616161616161111L,0);
+                "1:10001", "IVAN", "IG", 1616161616161111L, 0);
 
         ResponseToAtm expectedResponse = new ResponseToAtm(
-                "IVAN", "IVANOVICH", Collections.emptyMap(), PinCodeStatus.INVALID);
+                "1:10001", "IVAN", "IVANOVICH", Collections.emptyMap(), PinCodeStatus.INVALID);
 
         mvc.perform(post("/clientInfo").contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, headerValue)
@@ -82,9 +82,9 @@ class BankServerControllerTest {
 
     @SneakyThrows
     @Test
-    public void failGetClientInfo_404CodeDueToInvalidClientName() {
+    void failGetClientInfo_404CodeDueToInvalidClientName() {
         RequestFromAtm request = new RequestFromAtm(
-                "BOBA", "FETT", 1616161616162222L, 1234);
+                "1:10001", "BOBA", "FETT", 1616161616162222L, 1234);
 
         mvc.perform(post("/clientInfo").contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, headerValue)
@@ -94,13 +94,25 @@ class BankServerControllerTest {
 
     @SneakyThrows
     @Test
-    public void failGetClientInfo_404CodeDueToInvalidCardNumber() {
+    void failGetClientInfo_404CodeDueToInvalidCardNumber() {
         RequestFromAtm request = new RequestFromAtm(
-                "AFANASII", "FET", 99L, 1234);
+                "1:10001", "AFANASII", "FET", 99L, 1234);
 
         mvc.perform(post("/clientInfo").contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, headerValue)
                         .content(MAPPER.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
+    }
+
+    @SneakyThrows
+    @Test
+    void failGetClientInfo_401CodeDueToInvalidAuthCredentials() {
+        RequestFromAtm request = new RequestFromAtm(
+                "1:10001", "AFANASII", "FET", 99L, 1234);
+
+        mvc.perform(post("/clientInfo").contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "invalid auth credentials")
+                        .content(MAPPER.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
     }
 }

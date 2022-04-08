@@ -1,4 +1,4 @@
-package com.github.ivanig.bankserver.controller;
+package com.github.ivanig.bankserver.rest.controller;
 
 import com.github.ivanig.common.messages.RequestFromAtm;
 import com.github.ivanig.common.messages.ResponseToAtm;

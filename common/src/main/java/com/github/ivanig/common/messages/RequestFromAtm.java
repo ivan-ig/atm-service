@@ -1,16 +1,20 @@
 package com.github.ivanig.common.messages;
 
-import lombok.ToString;
-import lombok.Value;
+import lombok.*;
 
-@Value
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@EqualsAndHashCode
+@ToString
 public class RequestFromAtm {
 
-    String firstName;
-    String lastName;
-    long cardNumber;
+    private String id;
+    private String firstName;
+    private String lastName;
+    private long cardNumber;
 
     @ToString.Exclude
-    int pinCode;
+    private int pinCode;
 
 }

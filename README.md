@@ -155,7 +155,7 @@ java-объектов (entity классов) и записей таблиц.
 ###Base URL: `http://localhost:8081`  
 
 **Запрос инфо и баланса**: `GET /balance` или `GET /balance?atmNumber={id}`  
-- Response: [ResponseToClient](#DTO-RequestToClient) 
+- Response: [ResponseToClient](#DTO-ResponseToClient) 
 - Errors: 401 ([UnauthorizedException](#Exceptions)), 404 ([NotFoundException](#Exceptions)), 500 ([InternalBankServerErrorException](#Exceptions))  
 
 > Параметр запроса atmNumber может быть использован для идентификации банкомата и логирования исключительных ситуаций.   

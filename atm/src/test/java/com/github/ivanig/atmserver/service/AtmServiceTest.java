@@ -1,6 +1,6 @@
 package com.github.ivanig.atmserver.service;
 
-import com.github.ivanig.atmserver.dto.ResponseToClient;
+import com.github.ivanig.atmserver.rest.dto.ResponseToClient;
 import com.github.ivanig.common.messages.PinCodeStatus;
 import com.github.ivanig.common.messages.ResponseToAtm;
 import org.junit.jupiter.api.Assertions;
@@ -35,12 +35,12 @@ class AtmServiceTest {
         }};
 
         ResponseToAtm responseFromBank = new ResponseToAtm(
-                "fn", "pa", accountsAndBalances, PinCodeStatus.OK);
+                "1:10001", "fn", "pa", accountsAndBalances, PinCodeStatus.OK);
 
         ResponseToClient actual = atmService.analyzeAndConvertToResponseForClient(responseFromBank);
 
         ResponseToClient expected = new ResponseToClient(
-                "fn pa", accountsAndBalances, "Ok");
+                "1:10001", "fn pa", accountsAndBalances, "Ok");
 
         Assertions.assertEquals(expected, actual);
     }
@@ -48,12 +48,12 @@ class AtmServiceTest {
     @Test
     void successAnalyzeAndConvertToResponseForClient_invalidPinCode() {
         ResponseToAtm responseFromBank = new ResponseToAtm(
-                "fn", "pa", new HashMap<>(), PinCodeStatus.INVALID);
+                "1:10001", "fn", "pa", new HashMap<>(), PinCodeStatus.INVALID);
 
         ResponseToClient actual = atmService.analyzeAndConvertToResponseForClient(responseFromBank);
 
         ResponseToClient expected = new ResponseToClient(
-                "", Collections.emptyMap(), "Invalid pin-code entered");
+                "1:10001", "", Collections.emptyMap(), "Invalid pin-code entered");
 
         Assertions.assertEquals(expected, actual);
     }

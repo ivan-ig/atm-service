@@ -11,6 +11,7 @@ import java.util.Map;
 @ToString
 public class ResponseToAtm {
 
+    private String id;
     private String firstname;
     private String patronymic;
     private Map<String, String> accountsAndBalances;

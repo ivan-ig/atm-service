@@ -1,4 +1,4 @@
-package com.github.ivanig.bankserver.securityconfig;
+package com.github.ivanig.bankserver.configurations.security;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;

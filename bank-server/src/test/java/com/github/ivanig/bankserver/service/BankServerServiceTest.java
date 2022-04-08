@@ -2,6 +2,7 @@ package com.github.ivanig.bankserver.service;
 
 import com.github.ivanig.bankserver.entities.Account;
 import com.github.ivanig.bankserver.entities.Client;
+import com.github.ivanig.bankserver.exceptions.CardNotFoundException;
 import com.github.ivanig.bankserver.exceptions.ClientNotFoundException;
 import com.github.ivanig.bankserver.repository.ClientRepository;
 import com.github.ivanig.common.messages.PinCodeStatus;
@@ -20,18 +21,18 @@ import java.util.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-class BankServiceTest {
+class BankServerServiceTest {
 
     @Mock
     private ClientRepository clientRepository;
 
-    private BankService bankService;
+    private BankServerService bankServerService;
     private static Set<Account> accounts;
     private static Set<Client> clients;
 
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         accounts = new HashSet<Account>() {{
             Account account = new Account();
             account.setId(1L);
@@ -55,13 +56,14 @@ class BankServiceTest {
     }
 
     @BeforeEach
-    public void init() {
-        bankService = new BankService(clientRepository);
+    void init() {
+        bankServerService = new BankServerService(clientRepository);
     }
 
     @Test
-    public void successGetAccountsAndConvertToResponse() {
-        RequestFromAtm request = new RequestFromAtm("fn", "ln", 16L, 1234);
+    void successGetAccountsAndConvertToResponse() {
+        RequestFromAtm request = new RequestFromAtm(
+                "1:10001", "fn", "ln", 16L, 1234);
 
         when(clientRepository.findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName()))
                 .thenReturn(clients);
@@ -70,39 +72,56 @@ class BankServiceTest {
             put("20", "0.00 RUB");
         }};
         ResponseToAtm expectedResponse = new ResponseToAtm(
-                "fn", "pa", accountsAndBalances, PinCodeStatus.OK);
+                "1:10001", "fn", "pa", accountsAndBalances, PinCodeStatus.OK);
 
-        Assertions.assertEquals(expectedResponse, bankService.getCardAccountsInfoAndConvertToResponse(request));
+        Assertions.assertEquals(expectedResponse, bankServerService.getCardAccountsInfoAndConvertToResponse(request));
 
         verify(clientRepository, times(1))
                 .findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName());
     }
 
     @Test
-    public void successGetAccountsAndConvertToResponse_invalidPinCode() {
-        RequestFromAtm request = new RequestFromAtm("fn", "ln", 16L, 9999);
+    void successGetAccountsAndConvertToResponse_invalidPinCode() {
+        RequestFromAtm request = new RequestFromAtm(
+                "1:10001", "fn", "ln", 16L, 9999);
 
         when(clientRepository.findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName()))
                 .thenReturn(clients);
 
         ResponseToAtm expectedResponse = new ResponseToAtm(
-                "fn", "pa", new HashMap<>(), PinCodeStatus.INVALID);
+                "1:10001", "fn", "pa", new HashMap<>(), PinCodeStatus.INVALID);
 
-        Assertions.assertEquals(expectedResponse, bankService.getCardAccountsInfoAndConvertToResponse(request));
+        Assertions.assertEquals(expectedResponse, bankServerService.getCardAccountsInfoAndConvertToResponse(request));
 
         verify(clientRepository, times(1))
                 .findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName());
     }
 
     @Test
-    public void successGetAccountsAndConvertToResponse_clientNotFoundException() {
-        RequestFromAtm request = new RequestFromAtm("wrong", "wrong", 16L, 1234);
+    void failGetAccountsAndConvertToResponse_clientNotFoundException() {
+        RequestFromAtm request = new RequestFromAtm(
+                "1:10001", "wrong", "wrong", 16L, 1234);
 
         when(clientRepository.findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName()))
                 .thenReturn(Collections.emptySet());
 
         Assertions.assertThrows(ClientNotFoundException.class,
-                () -> bankService.getCardAccountsInfoAndConvertToResponse(request));
+                () -> bankServerService.getCardAccountsInfoAndConvertToResponse(request));
+
+        verify(clientRepository, times(1))
+                .findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName());
+    }
+
+    @Test
+    void failGetAccountsAndConvertToResponse_cardNotFoundException() {
+        RequestFromAtm request = new RequestFromAtm(
+                "1:10001", "fn", "ln", 0L, 1234);
+
+        when(clientRepository.findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName()))
+                .thenReturn(clients);
+
+        Assertions.assertThrows(CardNotFoundException.class,
+                () -> bankServerService.getCardAccountsInfoAndConvertToResponse(request));
 
         verify(clientRepository, times(1))
                 .findClientsByFirstNameAndLastName(request.getFirstName(), request.getLastName());
