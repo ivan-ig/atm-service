@@ -24,35 +24,19 @@ import static org.mockito.Mockito.when;
 class AtmKafkaServiceTest {
 
     @Mock
-    private KafkaTemplate<String, RequestFromAtm> kafkaTemplate;
-
-    @Mock
-    private AtmService atmService;
-
-    @Mock
     private MessageContext messageContext;
+
+    @Mock
+    private KafkaTemplate<String, RequestFromAtm> kafkaTemplate;
 
     private AtmKafkaService kafkaService;
 
 
     @BeforeEach
     void init() {
-        kafkaService = new AtmKafkaService(kafkaTemplate, atmService, messageContext);
+        kafkaService = new AtmKafkaService(kafkaTemplate, new AtmService(), messageContext);
     }
 
-    //TODO
-
-//    @Test
-//    void sendMessage() {
-//        RequestFromAtm request = new RequestFromAtm(
-//                "1:10001", "fn", "ln", 16L, 1234);
-//
-//        when(kafkaTemplate.send("request", request)).then(a -> true);
-//
-//        kafkaService.sendMessage(request);
-//
-//        verify(kafkaTemplate, times(1)).send("request", request);
-//    }
 
     @SneakyThrows
     @Test
@@ -79,7 +63,7 @@ class AtmKafkaServiceTest {
         when(messageContext.getMessage(anyString()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> kafkaService.awaitMessage(anyString()));
+        assertThrows(ResponseStatusException.class, () -> kafkaService.awaitMessage("any"));
     }
 
     @SneakyThrows
@@ -92,7 +76,6 @@ class AtmKafkaServiceTest {
         when(messageContext.getMessage(anyString()))
                 .thenReturn(Optional.of(response));
 
-        assertThrows(NotFoundException.class, () -> kafkaService.awaitMessage(anyString()));
+        assertThrows(NotFoundException.class, () -> kafkaService.awaitMessage("any"));
     }
-
 }

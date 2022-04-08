@@ -32,7 +32,7 @@ class BankServerServiceTest {
 
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         accounts = new HashSet<Account>() {{
             Account account = new Account();
             account.setId(1L);
@@ -56,12 +56,12 @@ class BankServerServiceTest {
     }
 
     @BeforeEach
-    public void init() {
+    void init() {
         bankServerService = new BankServerService(clientRepository);
     }
 
     @Test
-    public void successGetAccountsAndConvertToResponse() {
+    void successGetAccountsAndConvertToResponse() {
         RequestFromAtm request = new RequestFromAtm(
                 "1:10001", "fn", "ln", 16L, 1234);
 
@@ -81,7 +81,7 @@ class BankServerServiceTest {
     }
 
     @Test
-    public void successGetAccountsAndConvertToResponse_invalidPinCode() {
+    void successGetAccountsAndConvertToResponse_invalidPinCode() {
         RequestFromAtm request = new RequestFromAtm(
                 "1:10001", "fn", "ln", 16L, 9999);
 
@@ -98,7 +98,7 @@ class BankServerServiceTest {
     }
 
     @Test
-    public void failGetAccountsAndConvertToResponse_clientNotFoundException() {
+    void failGetAccountsAndConvertToResponse_clientNotFoundException() {
         RequestFromAtm request = new RequestFromAtm(
                 "1:10001", "wrong", "wrong", 16L, 1234);
 
@@ -113,7 +113,7 @@ class BankServerServiceTest {
     }
 
     @Test
-    public void failGetAccountsAndConvertToResponse_cardNotFoundException() {
+    void failGetAccountsAndConvertToResponse_cardNotFoundException() {
         RequestFromAtm request = new RequestFromAtm(
                 "1:10001", "fn", "ln", 0L, 1234);
 

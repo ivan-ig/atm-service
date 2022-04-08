@@ -45,7 +45,7 @@ class BankServerControllerTest {
 
     @SneakyThrows
     @Test
-    public void successGetClientInfo() {
+    void successGetClientInfo() {
         RequestFromAtm request = new RequestFromAtm(
                 "1:10001","IVAN", "IG", 1616161616161111L, 1234);
 
@@ -66,7 +66,7 @@ class BankServerControllerTest {
 
     @SneakyThrows
     @Test
-    public void successGetClientInfo_invalidPinCode() {
+    void successGetClientInfo_invalidPinCode() {
         RequestFromAtm request = new RequestFromAtm(
                 "1:10001", "IVAN", "IG", 1616161616161111L, 0);
 
@@ -82,7 +82,7 @@ class BankServerControllerTest {
 
     @SneakyThrows
     @Test
-    public void failGetClientInfo_404CodeDueToInvalidClientName() {
+    void failGetClientInfo_404CodeDueToInvalidClientName() {
         RequestFromAtm request = new RequestFromAtm(
                 "1:10001", "BOBA", "FETT", 1616161616162222L, 1234);
 
@@ -94,7 +94,7 @@ class BankServerControllerTest {
 
     @SneakyThrows
     @Test
-    public void failGetClientInfo_404CodeDueToInvalidCardNumber() {
+    void failGetClientInfo_404CodeDueToInvalidCardNumber() {
         RequestFromAtm request = new RequestFromAtm(
                 "1:10001", "AFANASII", "FET", 99L, 1234);
 
@@ -106,7 +106,7 @@ class BankServerControllerTest {
 
     @SneakyThrows
     @Test
-    public void failGetClientInfo_401CodeDueToInvalidAuthCredentials() {
+    void failGetClientInfo_401CodeDueToInvalidAuthCredentials() {
         RequestFromAtm request = new RequestFromAtm(
                 "1:10001", "AFANASII", "FET", 99L, 1234);
 

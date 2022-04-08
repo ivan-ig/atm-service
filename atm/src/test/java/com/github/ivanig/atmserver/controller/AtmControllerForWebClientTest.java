@@ -3,7 +3,6 @@ package com.github.ivanig.atmserver.controller;
 import com.github.ivanig.atmserver.exceptions.InternalBankServerErrorException;
 import com.github.ivanig.atmserver.exceptions.NotFoundException;
 import com.github.ivanig.atmserver.exceptions.UnauthorizedException;
-import com.github.ivanig.atmserver.rest.controller.AtmController;
 import com.github.ivanig.atmserver.rest.controller.AtmControllerForWebClient;
 import com.github.ivanig.atmserver.rest.dto.ResponseToClient;
 import com.github.ivanig.atmserver.service.AtmService;
@@ -21,6 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.*;
 class AtmControllerForWebClientTest {
 
     private static MockWebServer mockWebServer;
-    private AtmController atmController;
+    private AtmControllerForWebClient atmController;
 
     @BeforeAll
     static void setUp() throws IOException {
@@ -50,7 +50,7 @@ class AtmControllerForWebClientTest {
 
     @SneakyThrows
     @Test
-    public void successGetInfoAndBalance() {
+    void successGetInfoAndBalance() {
 
         mockWebServer.enqueue(
                 new MockResponse()
@@ -80,7 +80,7 @@ class AtmControllerForWebClientTest {
 
     @SneakyThrows
     @Test
-    public void successGetInfoAndBalance_invalidPinCode() {
+    void successGetInfoAndBalance_invalidPinCode() {
 
         mockWebServer.enqueue(
                 new MockResponse()
@@ -108,7 +108,7 @@ class AtmControllerForWebClientTest {
 
     @SneakyThrows
     @Test
-    public void failGetInfoAndBalance_notFoundException() {
+    void failGetInfoAndBalance_notFoundException() {
 
         mockWebServer.enqueue(
                 new MockResponse()
@@ -131,7 +131,7 @@ class AtmControllerForWebClientTest {
 
     @SneakyThrows
     @Test
-    public void failGetInfoAndBalance_UnauthorizedException() {
+    void failGetInfoAndBalance_UnauthorizedException() {
 
         mockWebServer.enqueue(
                 new MockResponse()
@@ -139,7 +139,7 @@ class AtmControllerForWebClientTest {
                         .addHeader("Content-Type", "application/json"));
 
         Mono<ResponseToClient> responseMock =
-                atmController.getInfoAndBalance(anyString(), anyString(), anyString(), anyLong(), anyInt());
+                atmController.getInfoAndBalance("", "", "", 0L, 0);
 
         StepVerifier
                 .create(responseMock)
@@ -154,7 +154,7 @@ class AtmControllerForWebClientTest {
 
     @SneakyThrows
     @Test
-    public void failGetInfoAndBalance_InternalServerError() {
+    void failGetInfoAndBalance_InternalServerError() {
 
         mockWebServer.enqueue(
                 new MockResponse()
@@ -162,7 +162,7 @@ class AtmControllerForWebClientTest {
                         .addHeader("Content-Type", "application/json"));
 
         Mono<ResponseToClient> responseMock =
-                atmController.getInfoAndBalance(anyString(), anyString(), anyString(), anyLong(), anyInt());
+                atmController.getInfoAndBalance("", "", "", 0L, 0);
 
         StepVerifier
                 .create(responseMock)
@@ -173,5 +173,14 @@ class AtmControllerForWebClientTest {
 
         assertEquals("POST", recordedRequest.getMethod());
         assertEquals("/clientInfo", recordedRequest.getPath());
+    }
+
+    @Test
+    void successGetMethodDescription() {
+        Map<String, String> methods = atmController.getMethodDescriptions();
+
+        int expectedMethodsNumber = atmController.getClass().getMethods().length - Object.class.getMethods().length;
+
+        assertEquals(expectedMethodsNumber, methods.size());
     }
 }
