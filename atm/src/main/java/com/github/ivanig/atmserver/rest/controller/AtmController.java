@@ -11,7 +11,7 @@ import java.util.Map;
 public interface AtmController {
 
     @GetMapping("/implementationPath")
-    Map<String, String> getMethodDescriptions();
+    Map<String, String> getUriDescriptions();
 
     @GetMapping("/implementationPath/balance")
     Mono<ResponseToClient> getInfoAndBalance(

@@ -33,9 +33,8 @@ public class AtmControllerForWebClient implements AtmController {
 
     @Override
     @GetMapping("/rest")
-    public Map<String, String> getMethodDescriptions() {
+    public Map<String, String> getUriDescriptions() {
         Map<String, String> methods = new HashMap<>();
-        methods.put("/rest", "Get all methods of \"rest\"");
         methods.put("/balance", "Get client information and balances");
         return methods;
     }

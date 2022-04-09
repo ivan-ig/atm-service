@@ -1,6 +1,7 @@
 package com.github.ivanig.atmserver.kafka;
 
 import com.github.ivanig.atmserver.exceptions.NotFoundException;
+import com.github.ivanig.atmserver.exceptions.WaitingTimeElapsedException;
 import com.github.ivanig.atmserver.rest.dto.ResponseToClient;
 import com.github.ivanig.atmserver.service.AtmService;
 import com.github.ivanig.common.messages.RequestFromAtm;
@@ -55,7 +56,7 @@ class AtmKafkaServiceTest {
 
     @SneakyThrows
     @Test
-    void failAwaitMessage_RequestTimeoutException() {
+    void failAwaitMessage_WaitingTimeElapsedException() {
 
         ResponseToClient response = new ResponseToClient(
                 "1:10001", "name", Collections.emptyMap(), "mo matter");
@@ -63,7 +64,7 @@ class AtmKafkaServiceTest {
         when(messageContext.getMessage(anyString()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> kafkaService.awaitMessage("any"));
+        assertThrows(WaitingTimeElapsedException.class, () -> kafkaService.awaitMessage("any"));
     }
 
     @SneakyThrows

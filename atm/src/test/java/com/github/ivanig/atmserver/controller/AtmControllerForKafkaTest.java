@@ -21,10 +21,12 @@ public class AtmControllerForKafkaTest {
 
     @Test
     void successGetMethodDescription() {
-        Map<String, String> methods = atmController.getMethodDescriptions();
+        Map<String, String> methods = atmController.getUriDescriptions();
+
+        int initiator = 1;
 
         int expectedMethodsNumber = atmController.getClass().getMethods().length - Object.class.getMethods().length;
 
-        assertEquals(expectedMethodsNumber, methods.size());
+        assertEquals(expectedMethodsNumber, methods.size() + initiator);
     }
 }

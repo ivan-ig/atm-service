@@ -26,9 +26,8 @@ public class AtmControllerForKafka implements AtmController {
 
     @Override
     @GetMapping("/kafka")
-    public Map<String, String> getMethodDescriptions() {
+    public Map<String, String> getUriDescriptions() {
         Map<String, String> methods = new HashMap<>();
-        methods.put("/kafka", "Get all methods of \"kafka\"");
         methods.put("/balance", "Get client information and balances");
         return methods;
     }

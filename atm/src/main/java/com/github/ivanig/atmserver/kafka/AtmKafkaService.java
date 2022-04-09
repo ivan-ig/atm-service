@@ -1,6 +1,7 @@
 package com.github.ivanig.atmserver.kafka;
 
 import com.github.ivanig.atmserver.exceptions.NotFoundException;
+import com.github.ivanig.atmserver.exceptions.WaitingTimeElapsedException;
 import com.github.ivanig.atmserver.rest.dto.ResponseToClient;
 import com.github.ivanig.atmserver.service.AtmService;
 import com.github.ivanig.common.messages.RequestFromAtm;
@@ -8,14 +9,12 @@ import com.github.ivanig.common.messages.ResponseToAtm;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
-import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @Service
@@ -55,7 +54,7 @@ public class AtmKafkaService {
     public ResponseToClient awaitMessage(String id) {
 
         ResponseToClient response =  messageContext.getMessage(id).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.REQUEST_TIMEOUT, "Response [" + id + "] time expired"));
+                () -> new WaitingTimeElapsedException("Response [" + id + "] waiting time elapsed"));
 
         log.debug("Successfully retrieved from queue [" + response + "]");
 
