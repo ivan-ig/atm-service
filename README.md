@@ -178,7 +178,7 @@ java-объектов (entity классов) и записей таблиц.
 
 # Запуск
 В модулях проекта используется **spring-boot-maven-plugin**, позволяющий собирать модули в самодостаточные .jar архивы.  
-Таким образом, для запуска достаточно команды `java -jar filename.jar`.
+Таким образом, для запуска достаточно команды `java -jar filename.jar`.  
 Для корректной работы сервиса необходимо предварительно запустить Kafka Server.
 
 Для создания топика на сервере Apache Kafka можно использовать команду вида:  
@@ -189,9 +189,10 @@ java-объектов (entity классов) и записей таблиц.
 
 Конфигурационные файлы расположены по пути `src\main\resources\application.properties`.
 
-# Конечные точки и примеры запросов
+# Конечные точки и примеры запросов  
 
-##atm:
+##atm:  
+
 ###Base URL: `http://localhost:8081`  
 
 **Запрос инфо и баланса (WebClient)**: `GET /rest/balance` или `GET /rest/balance?atmId={id}`  
@@ -208,12 +209,12 @@ curl http://localhost:8081/rest/balance -i
 ```
 200 OK:
 curl http://localhost:8081/rest/balance?atmId=178 -i
-```
+```  
 
 - **Запрос инфо и баланса (Kafka)**: `GET /kafka/balance` или `GET /kafka/balance?atmId={id}`  
 - Response: [ResponseToClient](#DTO-ResponseToClient) 
 - Errors: 404 ([NotFoundException](#Exceptions)), 408 ([WaitingTimeElapsedException](#Exceptions)), 500 ([InternalBankServerErrorException](#Exceptions))  
-- 
+
 ```
 200 OK:
 curl http://localhost:8081/kafka/balance -i
@@ -234,7 +235,7 @@ curl http://localhost:8081/kafka/balance?atmId=178 -i
 **Запрос инфо о клиенте**: `POST /clientInfo`
 - Request: [RequestFromAtm](#DTO-RequestFromAtm)
 - Response: [ResponseToAtm](#DTO-ResponseToAtm)
-- Error: 404 ([ClientNotFoundException](#Exception))
+- Error: 404 ([ClientNotFoundException](#Exception), [CardNotFoundException](#Exception))
 
 ```
 200 OK:
