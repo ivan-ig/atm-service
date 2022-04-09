@@ -191,9 +191,9 @@ java-объектов (entity классов) и записей таблиц.
 
 # Конечные точки и примеры запросов  
 
-##atm:  
+## atm:  
 
-###Base URL: `http://localhost:8081`  
+### Base URL: `http://localhost:8081`  
 
 **Запрос инфо и баланса (WebClient)**: `GET /rest/balance` или `GET /rest/balance?atmId={id}`  
 - Response: [ResponseToClient](#DTO-ResponseToClient) 
@@ -230,7 +230,7 @@ curl http://localhost:8081/kafka/balance?atmId=178 -i
 
 > Сервис не предполагает прямого обращения к **bank-server**'у, однако это возможно. 
 
-###Base URL: `http://localhost:8080`
+### Base URL: `http://localhost:8080`
 
 **Запрос инфо о клиенте**: `POST /clientInfo`
 - Request: [RequestFromAtm](#DTO-RequestFromAtm)
