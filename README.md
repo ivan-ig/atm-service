@@ -205,11 +205,37 @@ java-объектов (entity классов) и записей таблиц.
 ```
 200 OK:
 curl http://localhost:8081/rest/balance -i
+
+Результат:
+{
+  "id": "1:464771",
+  "clientName": "IVAN IVANOVICH",
+  "accountsView": {
+    "77777777777777733333": "0.00 EUR",
+    "77777777777777722222": "0.00 USD",
+    "77777777777777711111": "0.00 RUB"
+  },
+  "pinCodeStatus": "Ok"
+}
 ```
 ```
 200 OK:
 curl http://localhost:8081/rest/balance?atmId=178 -i
+
+Результат:
+{
+  "id": "178:208031",
+  "clientName": "IVAN IVANOVICH",
+  "accountsView": {
+    "77777777777777733333": "0.00 EUR",
+    "77777777777777722222": "0.00 USD",
+    "77777777777777711111": "0.00 RUB"
+  },
+  "pinCodeStatus": "Ok"
+}
 ```  
+> Результирующие значения могут отличаться и зависят от указанного в запросе id банкомата и выбранного набора входных данных пользователя.  
+
 
 - **Запрос инфо и баланса (Kafka)**: `GET /kafka/balance` или `GET /kafka/balance?atmId={id}`  
 - Response: [ResponseToClient](#DTO-ResponseToClient) 
@@ -218,11 +244,33 @@ curl http://localhost:8081/rest/balance?atmId=178 -i
 ```
 200 OK:
 curl http://localhost:8081/kafka/balance -i
-```
+
+Результат:
+{
+  "id": "101:501131",
+  "clientName": "AFANASII AFANASIEVICH",
+  "accountsView": {
+    "88888888888888811111": "0.00 RUB"
+  },
+  "pinCodeStatus": "Ok"
+}
+```  
 ```
 200 OK:
 curl http://localhost:8081/kafka/balance?atmId=178 -i
-```
+
+Результат:
+{
+  "id": "178:822951",
+  "clientName": "AFANASII AFANASIEVICH",
+  "accountsView": {
+    "88888888888888811111": "0.00 RUB"
+  },
+  "pinCodeStatus": "Ok"
+}
+```  
+> Результирующие значения могут отличаться и зависят от указанного в запросе id банкомата и выбранного набора входных данных пользователя.  
+
 
 При обращении к ресурсам `/rest`, `/kafka` возвращается JSON, содержащий список вложенных URI с описанием. 
 
@@ -235,20 +283,55 @@ curl http://localhost:8081/kafka/balance?atmId=178 -i
 **Запрос инфо о клиенте**: `POST /clientInfo`
 - Request: [RequestFromAtm](#DTO-RequestFromAtm)
 - Response: [ResponseToAtm](#DTO-ResponseToAtm)
-- Error: 404 ([ClientNotFoundException](#Exception), [CardNotFoundException](#Exception))
+- Error: 404 ([ClientNotFoundException](#Exception), [CardNotFoundException](#Exception))  
 
 ```
-200 OK:
+Multiple accounts (200 OK):
 
-Multiple accounts:
 curl -X POST http://localhost:8080/clientInfo -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"id\":\"1:10001\",\"firstName\":\"IVAN\",\"lastName\":\"IG\",\"cardNumber\":\"1616161616161111\",\"pinCode\":\"1234\"}" --user ATM:Pass
 
-Single account:
+Результат:
+{
+  "id": "1:10001",
+  "firstname": "IVAN",
+  "patronymic": "IVANOVICH",
+  "accountsAndBalances": {
+    "77777777777777733333": "0.00 EUR",
+    "77777777777777722222": "0.00 USD",
+    "77777777777777711111": "0.00 RUB"
+  },
+  "pinCodeStatus": "OK"
+}
+```
+```
+Single account (200 OK):
+
 curl -X POST http://localhost:8080/clientInfo -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"id\":\"1:10001\",\"firstName\":\"AFANASII\",\"lastName\":\"FET\",\"cardNumber\":\"1616161616162222\",\"pinCode\":\"1234\"}" --user ATM:Pass
 
-Invalid pin-code:
+Результат:
+{
+  "id": "1:10001",
+  "firstname": "AFANASII",
+  "patronymic": "AFANASIEVICH",
+  "accountsAndBalances": {
+    "88888888888888811111": "0.00 RUB"
+  },
+  "pinCodeStatus": "OK"
+}
+```
+```
+Invalid pin-code (200 OK):
+
 curl -X POST http://localhost:8080/clientInfo -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"id\":\"1:10001\",\"firstName\":\"AFANASII\",\"lastName\":\"FET\",\"cardNumber\":\"1616161616162222\",\"pinCode\":\"9999\"}" --user ATM:Pass
 
+Результат:
+{
+  "id": "1:10001",
+  "firstname": "AFANASII",
+  "patronymic": "AFANASIEVICH",
+  "accountsAndBalances": {},
+  "pinCodeStatus": "INVALID"
+}
 ```
 ```
 401 Unauthorized:
@@ -256,11 +339,27 @@ curl -X POST http://localhost:8080/clientInfo -H "Content-Type: application/json
 curl -X POST http://localhost:8080/clientInfo -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"id\":\"1:10001\",\"firstName\":\"IVAN\",\"lastName\":\"IG\",\"cardNumber\":\"1616161616161111\",\"pinCode\":\"1234\"}"
 
 curl -X POST http://localhost:8080/clientInfo -H "Content-Type: application/json" -H "Accept: application/json" -d "{}"
+
+Результат:
+HTTP/1.1 401
+...
+headers
+...
+
+HTTP Status 401 - Authorization required.
 ```
 ```
 404 NotFound:
 
 curl -X POST http://localhost:8080/clientInfo -H "Content-Type: application/json" -H "Accept: application/json" -d "{}" --user ATM:Pass
+
+Результат:
+HTTP/1.1 404
+...
+headers
+...
+
+{"timestamp":"2022-04-17T12:22:01.250+00:00","status":404,"error":"Not Found","path":"/clientInfo"}
 ```
 
 
